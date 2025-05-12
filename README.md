@@ -2,6 +2,8 @@
 
 An Astro integration that checks for broken links and SEO issues in your website during static build. It logs any problems to the console and writes them to log files, grouping them by category and the document in which they occur.
 
+✨ **Now with full TypeScript support!** ✨
+
 ## Features
 
 ### Link Checking
@@ -299,6 +301,40 @@ The report includes information about:
 - Missing critical files (robots.txt, sitemap.xml)
 - AI content detection (potentially AI-generated text with confidence scores)
 
+## TypeScript Support
+
+This project is fully written in TypeScript, providing enhanced IDE support, better code completion, and improved type safety. Benefits include:
+
+- **Type Safety**: Catch errors at compile-time instead of runtime
+- **Better IDE Integration**: Get intelligent code completion and documentation
+- **Self-Documenting Code**: Types serve as documentation for functions and data structures
+- **Enhanced Refactoring**: Safely refactor code with confidence
+
+If you're extending or customizing this integration, you'll benefit from the TypeScript type definitions, making it easier to understand the API and use it correctly.
+
+### Type Definitions
+
+TypeScript type definitions are included for all configuration options:
+
+```typescript
+// Example of configuration with TypeScript type checking
+import { defineConfig } from 'astro/config';
+import astroSeoChecker from 'astro-seo-checker';
+
+export default defineConfig({
+  integrations: [
+    astroSeoChecker({
+      // TypeScript provides autocomplete and documentation for all options
+      reportFilePath: 'site-report.json',
+      reportFormat: 'json',
+      checkExternalLinks: true,
+      aiDetectionThreshold: 75,
+      // etc.
+    }),
+  ],
+});
+```
+
 ## Development and Testing
 
 To contribute to this project:
@@ -310,9 +346,15 @@ git clone https://github.com/FabianGenell/astro-seo-checker.git
 # Install dependencies
 npm install
 
+# Build TypeScript code
+npm run build
+
 # Run tests
 npm test
 
 # Run tests with watch mode during development
 npm run test:watch
+
+# Type checking only (no compilation)
+npm run typecheck
 ```
