@@ -10,11 +10,11 @@ export default defineConfig({
     checkExternalLinks: false,      // Disable external link checking for faster tests
     emailAllowlist: ['allowlisted@example.com'],
     phases: {
-      1: true, // Enable Phase 1 (Foundation + Privacy)
-      2: true, // Enable Phase 2 (Metadata & Semantic Structure)
-      3: true, // Enable Phase 3 (Accessibility & UX Flags)
-      4: true, // Enable Phase 4 (Performance & Technical SEO)
-      5: true, // Enable Phase 5 (Crawlability & Linking)
+      foundation: true, // Enable Foundation & Privacy
+      metadata: true, // Enable Metadata & Semantic Structure
+      accessibility: true, // Enable Accessibility & UX Flags
+      performance: true, // Enable Performance & Technical SEO
+      crawlability: true, // Enable Crawlability & Linking
     },
     checkCanonical: true, // Enable canonical link checking
     ignoreEmptyAlt: true, // Don't flag empty alt attributes (they might be intentional for decorative images),

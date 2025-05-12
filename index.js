@@ -1,8 +1,9 @@
 import { fileURLToPath } from 'url';
 import path, { join } from 'path';
 import fs from 'fs';
-import { checkLinksInHtml, normalizeHtmlFilePath } from './check-links.js';
+import { normalizeHtmlFilePath } from './check-links.js';
 import { runPhases, phases } from './src/phases/index.js';
+import { CATEGORY_FORMATTING } from './src/phases/types.js';
 import fastGlob from 'fast-glob';
 
 export default function astroBrokenLinksChecker(options = {}) {
@@ -49,27 +50,23 @@ export default function astroBrokenLinksChecker(options = {}) {
           const htmlContent = fs.readFileSync(absoluteHtmlFilePath, 'utf8');
           const baseUrl = normalizeHtmlFilePath(absoluteHtmlFilePath, distPath);
           
-          // Check broken links (original functionality)
-          await checkLinksInHtml(
-            htmlContent,
+          // Set up options for the phase runner with links checking
+          const phaseOptions = {
+            ...options,
             brokenLinksMap,
-            baseUrl,
-            absoluteHtmlFilePath, // Document path
             checkedLinks,
-            distPath,
             astroConfigRedirects,
-            logger,
-            options.checkExternalLinks
-          );
-          
-          // Run SEO check phases
+            logger
+          };
+
+          // Run SEO check phases (including link checking in Foundation phase)
           await runPhases(
             htmlContent,
             seoIssuesMap,
             baseUrl,
             absoluteHtmlFilePath,
             distPath,
-            options,
+            phaseOptions,
             logger
           );
         });
@@ -186,31 +183,12 @@ ${issueCategories.length > 0 ? '  - ' + issueCategories.join('\n  - ') : ''}
   }
 }
 
+
 // Helper to format category names for display
 function formatCategoryName(category) {
-  // Add specific formatting for each category
-  const categoryFormatMap = {
-    // Phase 1 categories
-    'privacy: exposed email': '🔒 Privacy: Exposed Email Addresses',
-
-    // Phase 2 categories
-    'metadata: missing elements': '📄 Metadata: Missing Elements',
-    'metadata: empty elements': '📄 Metadata: Empty Elements',
-    'metadata: duplicates': '🔄 Metadata: Duplicates Across Pages',
-    'semantic: heading structure': '🏗️ Semantic: Heading Structure Issues',
-    'semantic: language': '🌐 Semantic: Language Attribute Issues',
-    'metadata: canonical': '🔗 Metadata: Canonical Link Issues',
-
-    // Phase 3 categories
-    'accessibility: missing alt': '🖼️ Accessibility: Missing Image Alternatives',
-    'accessibility: empty alt': '🖼️ Accessibility: Empty Alt Attributes',
-    'accessibility: unlabeled interactive': '🔘 Accessibility: Unlabeled Interactive Elements',
-    'accessibility: generic link text': '🔗 Accessibility: Generic Link Text'
-  };
-
   // Return mapped category name if it exists
-  if (categoryFormatMap[category]) {
-    return categoryFormatMap[category];
+  if (CATEGORY_FORMATTING[category]) {
+    return CATEGORY_FORMATTING[category];
   }
 
   // Default formatting for unmapped categories

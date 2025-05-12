@@ -1,48 +1,80 @@
-// Export all phase modules
-import { checkPhase1 } from './phase-1.js';
-import { checkPhase2 } from './phase-2.js';
-import { checkPhase3 } from './phase-3.js';
-import { checkPhase4 } from './phase-4.js';
-import { checkPhase5 } from './phase-5.js';
+/**
+ * Central registry for all SEO check phases
+ * 
+ * This file exports:
+ * 1. Individual phase handler functions
+ * 2. Phase configuration registry (for enabling/disabling phases)
+ * 3. runPhases utility that executes enabled phases
+ */
 
-// Re-export phase modules
-export { checkPhase1, checkPhase2, checkPhase3, checkPhase4, checkPhase5 };
+// Import phase handlers
+import { checkFoundationPhase } from './foundation-phase.js';
+import { checkMetadataPhase } from './metadata-phase.js';
+import { checkAccessibilityPhase } from './accessibility-phase.js';
+import { checkPerformancePhase } from './performance-phase.js';
+import { checkCrawlabilityPhase } from './crawlability-phase.js';
 
-// Export map of all phases for configuration
+// Import phase identifiers
+import { PHASE_IDS } from './types.js';
+
+// Re-export phase modules for direct access if needed
+export {
+  checkFoundationPhase,
+  checkMetadataPhase,
+  checkAccessibilityPhase,
+  checkPerformancePhase,
+  checkCrawlabilityPhase
+};
+
+/**
+ * Phase configuration registry
+ * - Each phase has a name, description, handler function and enabled status
+ * - Used for configuration and phase execution
+ */
 export const phases = {
-  1: {
-    name: 'Foundation + Privacy',
-    handler: checkPhase1,
+  [PHASE_IDS.FOUNDATION]: {
+    name: 'Foundation & Privacy',
+    handler: checkFoundationPhase,
     description: 'Checks for broken links and exposed emails',
-    enabled: true
+    enabled: true // Only Foundation is enabled by default
   },
-  2: {
+  [PHASE_IDS.METADATA]: {
     name: 'Metadata & Semantic Structure',
-    handler: checkPhase2,
+    handler: checkMetadataPhase,
     description: 'Checks for missing or duplicate metadata and heading structure',
-    enabled: false // Default disabled, can be enabled in config
+    enabled: false
   },
-  3: {
+  [PHASE_IDS.ACCESSIBILITY]: {
     name: 'Accessibility & UX Flags',
-    handler: checkPhase3,
+    handler: checkAccessibilityPhase,
     description: 'Checks for accessibility issues like missing alt tags and generic link text',
-    enabled: false // Default disabled, can be enabled in config
+    enabled: false
   },
-  4: {
+  [PHASE_IDS.PERFORMANCE]: {
     name: 'Performance & Technical SEO',
-    handler: checkPhase4,
+    handler: checkPerformancePhase,
     description: 'Checks for performance issues like large images, render-blocking resources and mobile viewport',
-    enabled: false // Default disabled, can be enabled in config
+    enabled: false
   },
-  5: {
+  [PHASE_IDS.CRAWLABILITY]: {
     name: 'Crawlability & Linking',
-    handler: checkPhase5,
+    handler: checkCrawlabilityPhase,
     description: 'Detects robots.txt issues, noindex/nofollow tags, and internal linking problems',
-    enabled: false // Default disabled, can be enabled in config
+    enabled: false
   }
 };
 
-// Run all enabled phases
+/**
+ * Runs all enabled SEO check phases on a given HTML document
+ * 
+ * @param {string} htmlContent - Raw HTML content to analyze
+ * @param {Map} issuesMap - Map to store found issues
+ * @param {string} baseUrl - Base URL for the document (for resolving relative links)
+ * @param {string} documentPath - Absolute path to the HTML file
+ * @param {string} distPath - Absolute path to the build output directory
+ * @param {Object} options - Configuration options for checks
+ * @param {Object} logger - Logger instance for output
+ */
 export async function runPhases(
   htmlContent,
   issuesMap,
@@ -52,12 +84,12 @@ export async function runPhases(
   options = {},
   logger
 ) {
-  // Log we're checking phases
+  // Log that we're checking phases
   logger?.info(`Running enabled SEO check phases for ${documentPath}`);
   
-  // Get configured phases
+  // Get all enabled phases with valid handlers
   const enabledPhases = Object.entries(phases)
-    .filter(([_, phase]) => phase.enabled && phase.handler)
+    .filter(([_, phase]) => phase.enabled && typeof phase.handler === 'function')
     .map(([id, phase]) => ({ id, ...phase }));
   
   // Run each enabled phase
