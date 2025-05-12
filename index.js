@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url';
 import path, { join } from 'path';
 import fs from 'fs';
-import { normalizeHtmlFilePath } from './check-links.js';
+import { normalizeHtmlFilePath } from './src/phases/utils.js';
 import { runPhases, phases } from './src/phases/index.js';
 import { CATEGORY_FORMATTING } from './src/phases/types.js';
 import fastGlob from 'fast-glob';

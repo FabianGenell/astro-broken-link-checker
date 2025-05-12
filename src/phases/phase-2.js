@@ -7,7 +7,7 @@
 // - Validate <link rel="canonical"> exists and points to current page (optional)
 
 import { parse } from 'node-html-parser';
-import { normalizeHtmlFilePath } from '../../check-links.js';
+import { normalizeHtmlFilePath } from './utils.js';
 
 // Keep track of duplicate metadata across files
 const metadataMap = {

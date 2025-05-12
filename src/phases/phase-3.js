@@ -4,7 +4,7 @@
 // - Flag links with generic text: click here, read more, learn more, etc.
 
 import { parse } from 'node-html-parser';
-import { normalizeHtmlFilePath } from '../../check-links.js';
+import { normalizeHtmlFilePath } from './utils.js';
 
 // Generic link texts to flag
 const GENERIC_LINK_TEXTS = [

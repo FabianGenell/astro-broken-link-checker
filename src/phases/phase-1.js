@@ -6,7 +6,7 @@
 
 import { parse } from 'node-html-parser';
 import path from 'path';
-import { normalizeHtmlFilePath } from '../../check-links.js';
+import { normalizeHtmlFilePath } from './utils.js';
 
 const EMAIL_REGEX = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 const GENERIC_OBFUSCATION_PATTERNS = ['[at]', '[dot]', ' at ', ' dot '];

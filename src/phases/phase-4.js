@@ -6,7 +6,7 @@
 // - Validate mobile viewport settings
 
 import { parse } from 'node-html-parser';
-import { normalizeHtmlFilePath } from '../../check-links.js';
+import { normalizeHtmlFilePath } from './utils.js';
 import path from 'path';
 import fs from 'fs';
 
