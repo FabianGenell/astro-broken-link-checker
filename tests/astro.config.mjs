@@ -7,5 +7,10 @@ export default defineConfig({
   },
   integrations: [astroBrokenLinksChecker({
     logFilePath: 'broken-links.log',
+    seoReportPath: 'seo-report.log',
+    emailAllowlist: ['allowlisted@example.com'],
+    phases: {
+      1: true, // Enable Phase 1 (Foundation + Privacy)
+    }
   })],
 });

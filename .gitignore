@@ -10,6 +10,10 @@ lerna-debug.log*
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+spec/
+.claude/
+CLAUDE.md
+
 # Runtime data
 pids
 *.pid
@@ -132,3 +136,4 @@ node_modules/
 dist/
 broken-links.log
 tests/broken-links.log
+**/.claude/settings.local.json
