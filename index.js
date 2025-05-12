@@ -15,6 +15,7 @@ import fastGlob from 'fast-glob';
  * @property {string} [logFilePath] - Legacy alias for reportFilePath, maintained for backward compatibility
  * @property {string} [reportFormat] - Report format override ('markdown', 'json', 'csv') regardless of file extension
  * @property {boolean} [checkExternalLinks=false] - Whether to check external links (significantly slower)
+ * @property {boolean} [verbose=false] - Enable detailed logging during the scan process
  *
  * @property {string[]} [emailAllowlist=[]] - List of email addresses to ignore when checking for exposed emails
  * @property {boolean} [checkCanonical=true] - Validate the canonical link on each page
@@ -78,26 +79,42 @@ export default function astroBrokenLinksChecker(options = {}) {
         const astroConfigRedirects = options.astroConfigRedirects;
         const distPath = fileURLToPath(dir);
         const htmlFiles = await fastGlob('**/*.html', { cwd: distPath });
-        logger.info(`🔍 Checking ${htmlFiles.length} HTML pages for issues...`);
-        
+
+        // Count enabled phases for better progress reporting
+        const enabledPhases = Object.values(phases).filter(phase => phase.enabled).length;
+
+        logger.info(`
+🔍 Starting SEO check on ${htmlFiles.length} HTML pages
+   Running ${enabledPhases} enabled phases: ${Object.values(phases)
+     .filter(phase => phase.enabled)
+     .map(phase => phase.name)
+     .join(', ')}
+        `);
+
         // Start time
         const startTime = Date.now();
-        
+
         // Resolve report file path to absolute path in the output directory
         const absoluteReportFilePath = join(distPath, reportFilePath);
-        
+
+        // Track progress for large projects
+        let pagesProcessed = 0;
+        const totalPages = htmlFiles.length;
+
         const checkHtmlPromises = htmlFiles.map(async (htmlFile) => {
           const absoluteHtmlFilePath = join(distPath, htmlFile);
           const htmlContent = fs.readFileSync(absoluteHtmlFilePath, 'utf8');
           const baseUrl = normalizeHtmlFilePath(absoluteHtmlFilePath, distPath);
-          
+
           // Set up options for the phase runner with links checking
           const phaseOptions = {
             ...options,
             brokenLinksMap,
             checkedLinks,
             astroConfigRedirects,
-            logger
+            logger,
+            // Only enable verbose logging if specifically requested
+            verbose: options.verbose || false
           };
 
           // Run SEO check phases (including link checking in Foundation phase)
@@ -110,6 +127,15 @@ export default function astroBrokenLinksChecker(options = {}) {
             phaseOptions,
             logger
           );
+
+          // Update progress
+          pagesProcessed++;
+
+          // For large sites (>50 pages), show periodic progress
+          if (totalPages > 50 && pagesProcessed % 10 === 0) {
+            const percent = Math.round((pagesProcessed / totalPages) * 100);
+            logger.info(`   Progress: ${percent}% (${pagesProcessed}/${totalPages} pages scanned)`);
+          }
         });
         
         await Promise.all(checkHtmlPromises);
@@ -173,15 +199,94 @@ function generateReport(brokenLinksMap, seoIssuesMap, options, logger) {
     const format = options.format || path.extname(options.filePath).substring(1) || 'log';
     const formatName = format.toUpperCase();
 
-    const summaryForConsole = `
-🔍 Site Report Summary:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ Scan completed in ${elapsedTime.toFixed(2)} seconds
-${brokenLinkCount > 0 ? `⚠️ Found ${brokenLinkCount} broken links` : '✅ No broken links detected'}
-${totalSeoIssues > 0 ? `⚠️ Found ${totalSeoIssues} SEO issues` : '✅ No SEO issues detected'}
-${issueCategories.length > 0 ? '  - ' + issueCategories.join('\n  - ') : ''}
+    // Group categories by type for better organization
+    const categoryGroups = {
+      performance: [],
+      accessibility: [],
+      metadata: [],
+      semantic: [],
+      crawlability: [],
+      linking: [],
+      content: [],
+      privacy: [],
+      technical: []
+    };
 
-📄 Full ${formatName} report written to: ${options.filePath}
+    // Sort issues into category groups
+    for (const category of issueCategories) {
+      const [count, ...parts] = category.split(' ');
+      const categoryString = parts.join(' ');
+
+      // Find which group this belongs to
+      for (const groupName of Object.keys(categoryGroups)) {
+        if (categoryString.startsWith(groupName)) {
+          categoryGroups[groupName].push({ count: parseInt(count, 10), category: categoryString });
+          break;
+        }
+      }
+    }
+
+    // Generate category output with colors
+    let categoriesByGroup = '';
+
+    if (issueCategories.length > 0) {
+      // First add high-level summary by group
+      categoriesByGroup = '\n\n  Issue breakdown:';
+
+      // Sort groups by priority for display
+      const groupDisplayOrder = [
+        'performance', 'accessibility', 'metadata',
+        'crawlability', 'linking', 'technical',
+        'content', 'privacy', 'semantic'
+      ];
+
+      // Add emojis for each group
+      const groupEmojis = {
+        performance: '⚡',
+        accessibility: '♿',
+        metadata: '📄',
+        crawlability: '🔍',
+        linking: '🔗',
+        technical: '🔧',
+        content: '📝',
+        privacy: '🔒',
+        semantic: '🏗️'
+      };
+
+      // Format the category groups for display
+      for (const group of groupDisplayOrder) {
+        const issues = categoryGroups[group];
+        if (issues.length > 0) {
+          // Calculate total issues in this group
+          const totalInGroup = issues.reduce((sum, issue) => sum + issue.count, 0);
+
+          // Add group header
+          categoriesByGroup += `\n    ${groupEmojis[group]} ${group[0].toUpperCase() + group.slice(1)}: ${totalInGroup} issue${totalInGroup !== 1 ? 's' : ''}`;
+
+          // Sort issues within the group by count (descending)
+          issues.sort((a, b) => b.count - a.count);
+
+          // Add each issue in the group
+          for (const { count, category } of issues) {
+            // Extract the specific issue type from the category
+            const issueType = category.split(': ')[1] || category;
+            categoriesByGroup += `\n      • ${issueType}: ${count}`;
+          }
+        }
+      }
+    }
+
+    const summaryForConsole = `
+✨ Astro SEO Checker Report ✨
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Scan completed in ${elapsedTime.toFixed(2)} seconds
+
+📊 Summary:
+  ${brokenLinkCount > 0 ? `⚠️  ${brokenLinkCount} broken link${brokenLinkCount !== 1 ? 's' : ''}` : '✅ No broken links detected'}
+  ${totalSeoIssues > 0 ? `⚠️  ${totalSeoIssues} SEO issue${totalSeoIssues !== 1 ? 's' : ''}` : '✅ No SEO issues detected'}${categoriesByGroup}
+
+📄 Full ${formatName} report written to:
+  ${options.filePath}
 `;
 
     logger.info(summaryForConsole);

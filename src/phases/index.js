@@ -74,7 +74,7 @@ export const phases = {
 
 /**
  * Runs all enabled SEO check phases on a given HTML document
- * 
+ *
  * @param {string} htmlContent - Raw HTML content to analyze
  * @param {Map} issuesMap - Map to store found issues
  * @param {string} baseUrl - Base URL for the document (for resolving relative links)
@@ -92,14 +92,18 @@ export async function runPhases(
   options = {},
   logger
 ) {
-  // Log that we're checking phases
-  logger?.info(`Running enabled SEO check phases for ${documentPath}`);
-  
+  // Get a simplified path for logs
+  const simplePath = documentPath.replace(distPath, '').replace('/index.html', '/');
+
+  // We'll only log the page path if we're in verbose mode or if it's the first few pages
+  // This reduces log noise while still providing some visibility
+  const isVerboseLogging = options.verbose || false;
+
   // Get all enabled phases with valid handlers
   const enabledPhases = Object.entries(phases)
     .filter(([_, phase]) => phase.enabled && typeof phase.handler === 'function')
     .map(([id, phase]) => ({ id, ...phase }));
-  
+
   // Run each enabled phase
   for (const phase of enabledPhases) {
     try {
@@ -112,7 +116,13 @@ export async function runPhases(
         options
       );
     } catch (error) {
-      logger?.error(`Error in phase ${phase.id} (${phase.name}): ${error.message}`);
+      // Always log errors
+      logger?.error(`Error in phase '${phase.name}' on page ${simplePath}: ${error.message}`);
+
+      // Log the stack trace if in verbose mode
+      if (isVerboseLogging && error.stack) {
+        logger?.error(error.stack);
+      }
     }
   }
 }

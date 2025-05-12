@@ -21,58 +21,61 @@ describe('Accessibility & UX Flags Phase Tests', () => {
   describe('Missing alt attribute detection', () => {
     it('should detect images without alt attributes', () => {
       const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
-      
+
       // Check for missing alt category
       expect(reportContent).toContain('accessibility: missing alt');
-      
-      // Check for specific image issues
-      expect(reportContent).toContain('Missing alt attribute on <img src="/example-image.jpg">');
-      expect(reportContent).toContain('Missing alt attribute on <img src="/another-image.png">');
-      
+
+      // Check for specific image issues - now we have simpler issue descriptions
+      expect(reportContent).toContain('Missing alt attribute on <img>');
+
+      // Check for important attributes in the report
+      expect(reportContent).toContain('src="/example-image.jpg"');
+      expect(reportContent).toContain('src="/another-image.png"');
+
       // Check page is listed
       expect(reportContent).toContain('/accessibility-issues');
     });
-    
+
     it('should detect empty alt attributes when configured', () => {
       const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
-      
+
       // If the optional empty alt check is enabled, this should be detected
       // Otherwise it might not appear. The test will need to be conditionally run.
       if (reportContent.includes('accessibility: empty alt')) {
-        expect(reportContent).toContain('Empty alt attribute on <img src="/decorative-image.svg">');
+        expect(reportContent).toContain('Empty alt attribute on <img>');
+        expect(reportContent).toContain('src="/decorative-image.svg"');
       }
     });
   });
-  
+
   describe('Empty interactive elements detection', () => {
     it('should detect buttons without accessible text', () => {
       const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
-      
+
       // Check for unlabeled interactive elements category
       expect(reportContent).toContain('accessibility: unlabeled interactive');
-      
+
       // Check for empty buttons
       expect(reportContent).toContain('Empty button without accessible text');
-      
+
       // Check page is listed
       expect(reportContent).toContain('/accessibility-issues');
     });
-    
+
     it('should detect links without accessible text', () => {
       const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
-      
-      // Check for empty links
-      expect(reportContent).toContain('Empty link <a href=');
-      expect(reportContent).toContain('without accessible text');
-      
+
+      // Check for empty links - more general now since we've updated the issue format
+      expect(reportContent).toContain('Empty link without accessible text');
+
       // Check page is listed
       expect(reportContent).toContain('/accessibility-issues');
     });
-    
+
     it('should not flag elements with aria-label', () => {
       const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
       const accessibilitySection = extractSection(reportContent, 'accessibility: unlabeled interactive');
-      
+
       // These should not appear as issues
       expect(accessibilitySection).not.toContain('aria-label="This button has an aria-label"');
       expect(accessibilitySection).not.toContain('aria-label="This link has an aria-label"');

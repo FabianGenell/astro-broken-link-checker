@@ -177,6 +177,7 @@ export default defineConfig({
 | `logFilePath` | `string` | `undefined` | Legacy alias for `reportFilePath`, maintained for backward compatibility. |
 | `reportFormat` | `string` | `undefined` | Format override that takes precedence over the file extension. Valid values: `'markdown'`, `'json'`, `'csv'`. |
 | `checkExternalLinks` | `boolean` | `false` | Whether to check external links. This can significantly increase the scan time, especially for sites with many outbound links. |
+| `verbose` | `boolean` | `false` | Enable detailed logging during the scan process. Outputs more information about what's being checked and any errors encountered. |
 
 #### SEO Options
 
