@@ -151,7 +151,10 @@ async function checkLinksInHtml(
           // Absolute URL
           absoluteLink = link;
         } else {
-          absoluteLink = new URL(link, "https://localhost" + baseUrl).pathname;
+          // Handle URL encoding properly by first ensuring the link is properly encoded
+          // This helps with links containing spaces and special characters
+          const properlyEncodedLink = link.includes('%') ? link : encodeURI(link);
+          absoluteLink = new URL(properlyEncodedLink, "https://localhost" + baseUrl).pathname;
         }
       } catch (err) {
         // Invalid URL, skip
@@ -165,16 +168,19 @@ async function checkLinksInHtml(
       }
 
       // Handle redirects defined in Astro configuration
-      if (astroConfigRedirects[fetchLink]) {
-        const redirect = astroConfigRedirects[fetchLink];
+      const decodedFetchLink = decodeURIComponent(fetchLink);
+      if (astroConfigRedirects[fetchLink] || astroConfigRedirects[decodedFetchLink]) {
+        const redirect = astroConfigRedirects[fetchLink] || astroConfigRedirects[decodedFetchLink];
         if (redirect) {
           fetchLink = redirect.destination ? redirect.destination : redirect;
         }
       }
 
-      // Check if we've already validated this link
-      if (checkedLinks.has(fetchLink)) {
-        const isBroken = !checkedLinks.get(fetchLink);
+      // Check if we've already validated this link, including the decoded version
+      const normalizedFetchLink = fetchLink.includes('%') ? decodeURIComponent(fetchLink) : fetchLink;
+      if (checkedLinks.has(fetchLink) || checkedLinks.has(normalizedFetchLink)) {
+        const linkKey = checkedLinks.has(fetchLink) ? fetchLink : normalizedFetchLink;
+        const isBroken = !checkedLinks.get(linkKey);
         if (isBroken) {
           addBrokenLink(brokenLinksMap, documentPath, link, distPath);
         }
@@ -185,16 +191,35 @@ async function checkLinksInHtml(
 
       if (fetchLink.startsWith('/') && distPath) {
         // Internal link in build mode, check if file exists
-        const relativePath = fetchLink;
+        // Decode URI components to handle spaces and special characters
+        const decodedPath = decodeURIComponent(fetchLink);
+
         // Potential file paths to check
         const possiblePaths = [
-          path.join(distPath, relativePath),
-          path.join(distPath, relativePath, 'index.html'),
-          path.join(distPath, `${relativePath}.html`),
+          path.join(distPath, decodedPath),
+          path.join(distPath, decodedPath, 'index.html'),
+          path.join(distPath, `${decodedPath}.html`),
         ];
 
+        // For files with spaces or special characters, also check the encoded path
+        if (decodedPath !== fetchLink) {
+          possiblePaths.push(
+            path.join(distPath, fetchLink),
+            path.join(distPath, fetchLink, 'index.html'),
+            path.join(distPath, `${fetchLink}.html`)
+          );
+        }
+
         // Check if any of the possible paths exist
-        if (!possiblePaths.some((p) => fs.existsSync(p))) {
+        if (!possiblePaths.some((p) => {
+          try {
+            return fs.existsSync(p);
+          } catch (err) {
+            // Handle invalid paths that might cause existsSync to fail
+            logger?.debug?.(`Error checking path ${p}: ${err.message}`);
+            return false;
+          }
+        })) {
           isBroken = true;
         }
       } else if (checkExternalLinks) {
@@ -221,9 +246,18 @@ async function checkLinksInHtml(
         }
       }
 
-      // Cache the link's validity
-      checkedLinks.set(fetchLink, !isBroken);
-      checkedLinks.set(absoluteLink, !isBroken);
+      // Cache the link's validity - both encoded and decoded versions
+      const linkIsValid = !isBroken;
+      checkedLinks.set(fetchLink, linkIsValid);
+      checkedLinks.set(absoluteLink, linkIsValid);
+
+      // Also cache the decoded versions to handle URL-encoded characters
+      if (fetchLink.includes('%')) {
+        checkedLinks.set(decodeURIComponent(fetchLink), linkIsValid);
+      }
+      if (absoluteLink.includes('%')) {
+        checkedLinks.set(decodeURIComponent(absoluteLink), linkIsValid);
+      }
 
       if (isBroken) {
         addBrokenLink(brokenLinksMap, documentPath, link, distPath);
