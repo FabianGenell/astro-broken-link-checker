@@ -11,7 +11,7 @@ import { formatMarkdown } from './markdown-formatter.js';
 import { formatCSV } from './csv-formatter.js';
 import { formatJSON } from './json-formatter.js';
 import path from 'path';
-import { ReportOptions } from '../../index.js';
+import { ReportOptions } from '../types/index.js';
 
 /**
  * Formatter function type

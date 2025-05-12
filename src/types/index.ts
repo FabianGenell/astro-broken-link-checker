@@ -60,11 +60,15 @@ export interface AstroSeoCheckerOptions {
   logFilePath?: string;
   /** Report format override ('markdown', 'json', 'csv') regardless of file extension */
   reportFormat?: string;
+  /** Custom output directory for reports (defaults to dist directory if not specified) */
+  reportOutputDir?: string;
+  /** Whether to use absolute paths for reports instead of relative to dist (defaults to false) */
+  useAbsolutePaths?: boolean;
   /** Whether to check external links (significantly slower) */
   checkExternalLinks?: boolean;
   /** Enable detailed logging during the scan process */
   verbose?: boolean;
-  
+
   /** List of email addresses to ignore when checking for exposed emails */
   emailAllowlist?: string[];
   /** Validate the canonical link on each page */
@@ -129,6 +133,7 @@ export interface ReportOptions {
   filePath: string;
   format?: string;
   startTime: number;
+  useAbsolutePaths?: boolean;
 }
 
 /**

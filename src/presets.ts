@@ -12,7 +12,8 @@ import { AstroSeoCheckerOptions } from './types/index.js';
  * Focuses on critical SEO issues like broken links, metadata, and AI content detection
  */
 export const minimalPreset: AstroSeoCheckerOptions = {
-  reportFilePath: 'site-report.log',
+  reportFilePath: 'site-report.md',
+  reportFormat: 'markdown', // Default to markdown for better readability
   checkExternalLinks: false,
   phases: {
     foundation: true,  // Keep broken links checking
@@ -31,7 +32,8 @@ export const minimalPreset: AstroSeoCheckerOptions = {
  * Good for most websites with a reasonable amount of content
  */
 export const standardPreset: AstroSeoCheckerOptions = {
-  reportFilePath: 'site-report.log',
+  reportFilePath: 'site-report.md',
+  reportFormat: 'markdown', // Default to markdown for better readability
   checkExternalLinks: false,
   phases: {
     foundation: true,
@@ -54,7 +56,8 @@ export const standardPreset: AstroSeoCheckerOptions = {
  * Best for projects where SEO is critical and performance is not an issue
  */
 export const comprehensivePreset: AstroSeoCheckerOptions = {
-  reportFilePath: 'site-report.log',
+  reportFilePath: 'site-report.json',
+  reportFormat: 'json',  // Default to JSON for comprehensive data analysis
   checkExternalLinks: true,  // Check external links for comprehensive analysis
   phases: {
     foundation: true,
@@ -80,7 +83,8 @@ export const comprehensivePreset: AstroSeoCheckerOptions = {
  * Focuses on performance and technical SEO issues
  */
 export const performancePreset: AstroSeoCheckerOptions = {
-  reportFilePath: 'site-report-performance.log',
+  reportFilePath: 'site-report-performance.json',
+  reportFormat: 'json',  // Default to JSON for performance data analysis
   checkExternalLinks: false,
   phases: {
     foundation: false,
@@ -102,7 +106,8 @@ export const performancePreset: AstroSeoCheckerOptions = {
  * Focuses on accessibility issues
  */
 export const accessibilityPreset: AstroSeoCheckerOptions = {
-  reportFilePath: 'site-report-a11y.log',
+  reportFilePath: 'site-report-a11y.csv',
+  reportFormat: 'csv',  // Default to CSV for better accessibility issue tracking
   checkExternalLinks: false,
   phases: {
     foundation: false,
@@ -121,7 +126,8 @@ export const accessibilityPreset: AstroSeoCheckerOptions = {
  * Specifically for identifying potentially AI-generated content
  */
 export const aiDetectionPreset: AstroSeoCheckerOptions = {
-  reportFilePath: 'site-report-ai.log',
+  reportFilePath: 'site-report-ai.json',
+  reportFormat: 'json',  // Default to JSON for AI detection results analysis
   checkExternalLinks: false,
   phases: {
     foundation: false,

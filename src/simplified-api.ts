@@ -33,10 +33,20 @@ export {
  * Checks broken links, basic metadata, and AI-generated content
  *
  * @param reportPath - Path to save the report (optional)
+ * @param outputDir - Custom output directory for the report (optional)
+ * @param useAbsolutePaths - Whether to treat paths as absolute (optional)
  * @returns Configured Astro SEO Checker integration
  */
-export function createMinimalChecker(reportPath?: string) {
-  const options = { ...minimalPreset };
+export function createMinimalChecker(
+  reportPath?: string,
+  outputDir?: string,
+  useAbsolutePaths = false
+) {
+  const options = {
+    ...minimalPreset,
+    reportOutputDir: outputDir,
+    useAbsolutePaths: useAbsolutePaths
+  };
   if (reportPath) options.reportFilePath = reportPath;
   return createIntegration(options);
 }
@@ -44,15 +54,24 @@ export function createMinimalChecker(reportPath?: string) {
 /**
  * Create an SEO checker with standard configuration
  * Balanced set of checks suitable for most websites
- * 
+ *
  * @param reportPath - Path to save the report (optional)
  * @param checkExternal - Whether to check external links (defaults to false)
+ * @param outputDir - Custom output directory for the report (optional)
+ * @param useAbsolutePaths - Whether to treat paths as absolute (optional)
  * @returns Configured Astro SEO Checker integration
  */
-export function createStandardChecker(reportPath?: string, checkExternal = false) {
+export function createStandardChecker(
+  reportPath?: string,
+  checkExternal = false,
+  outputDir?: string,
+  useAbsolutePaths = false
+) {
   const options = {
     ...standardPreset,
-    checkExternalLinks: checkExternal
+    checkExternalLinks: checkExternal,
+    reportOutputDir: outputDir,
+    useAbsolutePaths: useAbsolutePaths
   };
   if (reportPath) options.reportFilePath = reportPath;
   return createIntegration(options);
@@ -61,36 +80,66 @@ export function createStandardChecker(reportPath?: string, checkExternal = false
 /**
  * Create an SEO checker with comprehensive configuration
  * All checks enabled, best for projects where SEO is critical
- * 
+ *
  * @param reportPath - Path to save the report (optional)
+ * @param outputDir - Custom output directory for the report (optional)
+ * @param useAbsolutePaths - Whether to treat paths as absolute (optional)
  * @returns Configured Astro SEO Checker integration
  */
-export function createComprehensiveChecker(reportPath?: string) {
-  const options = { ...comprehensivePreset };
+export function createComprehensiveChecker(
+  reportPath?: string,
+  outputDir?: string,
+  useAbsolutePaths = false
+) {
+  const options = {
+    ...comprehensivePreset,
+    reportOutputDir: outputDir,
+    useAbsolutePaths: useAbsolutePaths
+  };
   if (reportPath) options.reportFilePath = reportPath;
   return createIntegration(options);
 }
 
 /**
  * Create an SEO checker focused on performance issues
- * 
+ *
  * @param reportPath - Path to save the report (optional)
+ * @param outputDir - Custom output directory for the report (optional)
+ * @param useAbsolutePaths - Whether to treat paths as absolute (optional)
  * @returns Configured Astro SEO Checker integration
  */
-export function createPerformanceChecker(reportPath?: string) {
-  const options = { ...performancePreset };
+export function createPerformanceChecker(
+  reportPath?: string,
+  outputDir?: string,
+  useAbsolutePaths = false
+) {
+  const options = {
+    ...performancePreset,
+    reportOutputDir: outputDir,
+    useAbsolutePaths: useAbsolutePaths
+  };
   if (reportPath) options.reportFilePath = reportPath;
   return createIntegration(options);
 }
 
 /**
  * Create an SEO checker focused on accessibility issues
- * 
+ *
  * @param reportPath - Path to save the report (optional)
+ * @param outputDir - Custom output directory for the report (optional)
+ * @param useAbsolutePaths - Whether to treat paths as absolute (optional)
  * @returns Configured Astro SEO Checker integration
  */
-export function createAccessibilityChecker(reportPath?: string) {
-  const options = { ...accessibilityPreset };
+export function createAccessibilityChecker(
+  reportPath?: string,
+  outputDir?: string,
+  useAbsolutePaths = false
+) {
+  const options = {
+    ...accessibilityPreset,
+    reportOutputDir: outputDir,
+    useAbsolutePaths: useAbsolutePaths
+  };
   if (reportPath) options.reportFilePath = reportPath;
   return createIntegration(options);
 }
@@ -100,12 +149,21 @@ export function createAccessibilityChecker(reportPath?: string) {
  *
  * @param reportPath - Path to save the report (optional)
  * @param threshold - AI detection sensitivity threshold (optional, default is 60)
+ * @param outputDir - Custom output directory for the report (optional)
+ * @param useAbsolutePaths - Whether to treat paths as absolute (optional)
  * @returns Configured Astro SEO Checker integration
  */
-export function createAiDetectionChecker(reportPath?: string, threshold = 60) {
+export function createAiDetectionChecker(
+  reportPath?: string,
+  threshold = 60,
+  outputDir?: string,
+  useAbsolutePaths = false
+) {
   const options = {
     ...aiDetectionPreset,
-    aiDetectionThreshold: threshold
+    aiDetectionThreshold: threshold,
+    reportOutputDir: outputDir,
+    useAbsolutePaths: useAbsolutePaths
   };
   if (reportPath) options.reportFilePath = reportPath;
   return createIntegration(options);
@@ -113,31 +171,38 @@ export function createAiDetectionChecker(reportPath?: string, threshold = 60) {
 
 /**
  * Create a custom SEO checker with specific report format
- * 
+ *
  * @param format - Output format (markdown, json, csv)
  * @param reportPath - Path to save the report (optional)
  * @param basePreset - Base preset to extend (defaults to standard)
+ * @param outputDir - Custom output directory for the report (optional)
+ * @param useAbsolutePaths - Whether to treat paths as absolute (optional)
  * @returns Configured Astro SEO Checker integration
  */
 export function createFormattedChecker(
   format: OutputFormat,
   reportPath?: string,
-  basePreset = standardPreset
+  basePreset = standardPreset,
+  outputDir?: string,
+  useAbsolutePaths = false
 ) {
-  const options = { 
+  const options = {
     ...basePreset,
-    reportFormat: format
+    reportFormat: format,
+    reportOutputDir: outputDir,
+    useAbsolutePaths: useAbsolutePaths
   };
-  
+
   if (reportPath) {
     options.reportFilePath = reportPath;
   } else {
-    // Set default extension based on format
-    const extension = format === 'json' ? '.json' : 
-                      format === 'csv' ? '.csv' : '.log';
+    // Set default filename with proper extension based on format
+    const extension = format === 'json' ? '.json' :
+                      format === 'csv' ? '.csv' :
+                      format === 'markdown' ? '.md' : '.log';
     options.reportFilePath = `site-report${extension}`;
   }
-  
+
   return createIntegration(options);
 }
 

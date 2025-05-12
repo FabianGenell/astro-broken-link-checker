@@ -3,7 +3,7 @@
  */
 
 import { fileURLToPath } from 'url';
-import { join } from 'path';
+import path, { join } from 'path';
 import fs from 'fs';
 import fastGlob from 'fast-glob';
 
@@ -25,8 +25,27 @@ import { generateReport } from './report.js';
  */
 export function createIntegration(options: AstroSeoCheckerOptions = {}) {
   // Default options
-  const reportFilePath = options.reportFilePath || options.logFilePath || 'site-report.log';
   const reportFormat = options.reportFormat; // Auto-detected from file extension if not specified
+
+  // Determine file extension based on reportFormat or use default .log
+  let defaultExtension = '.log';
+  if (reportFormat) {
+    defaultExtension = reportFormat.toLowerCase() === 'json' ? '.json' :
+                      reportFormat.toLowerCase() === 'csv' ? '.csv' :
+                      reportFormat.toLowerCase() === 'markdown' ? '.md' : '.log';
+  }
+
+  // Get the report file path, ensure it has the correct extension
+  let reportFilePath = options.reportFilePath || options.logFilePath || `site-report${defaultExtension}`;
+
+  // If a format is specified but the file doesn't have the matching extension, add it
+  if (reportFormat && !reportFilePath.endsWith(defaultExtension)) {
+    // Remove any existing extension
+    const baseName = reportFilePath.includes('.') ?
+                    reportFilePath.substring(0, reportFilePath.lastIndexOf('.')) :
+                    reportFilePath;
+    reportFilePath = `${baseName}${defaultExtension}`;
+  }
   const brokenLinksMap: Map<string, Set<string>> = new Map(); // Map of brokenLink -> Set of documents
   const checkedLinks: Map<string, boolean> = new Map();
   const seoIssuesMap: Map<string, Map<string, Set<string>>> = new Map(); // Map of category -> Map of issue -> Set of documents
@@ -104,8 +123,21 @@ export function createIntegration(options: AstroSeoCheckerOptions = {}) {
           // Start time
           const startTime = Date.now();
 
-          // Resolve report file path to absolute path in the output directory
-          const absoluteReportFilePath = join(distPath, reportFilePath);
+          // Determine where to write the report file
+          let absoluteReportFilePath;
+
+          if (options.useAbsolutePaths && path.isAbsolute(reportFilePath)) {
+            // User specified an absolute path, use it directly
+            absoluteReportFilePath = reportFilePath;
+          } else if (options.reportOutputDir) {
+            // User specified a custom output directory
+            absoluteReportFilePath = path.isAbsolute(options.reportOutputDir) ?
+              join(options.reportOutputDir, reportFilePath) :
+              join(distPath, options.reportOutputDir, reportFilePath);
+          } else {
+            // Default: write to the dist directory
+            absoluteReportFilePath = join(distPath, reportFilePath);
+          }
 
           // Track progress for large projects
           let pagesProcessed = 0;
@@ -197,7 +229,8 @@ export function createIntegration(options: AstroSeoCheckerOptions = {}) {
               {
                 filePath: absoluteReportFilePath,
                 format: reportFormat,
-                startTime: startTime
+                startTime: startTime,
+                useAbsolutePaths: options.useAbsolutePaths
               },
               logger
             );
