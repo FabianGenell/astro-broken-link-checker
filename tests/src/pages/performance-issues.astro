@@ -8,15 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Render-blocking stylesheet -->
-  <link rel="stylesheet" href="/styles.css">
-  
+  <link rel="stylesheet" href="/styles.css" is:inline>
+
   <!-- Render-blocking script -->
-  <script src="/blocking-script.js"></script>
-  
+  <script src="/blocking-script.js" is:inline></script>
+
   <!-- Non-blocking scripts (should not be flagged) -->
-  <script src="/non-blocking-script.js" async></script>
-  <script src="/another-script.js" defer></script>
-  <script type="module" src="/module-script.js"></script>
+  <script src="/non-blocking-script.js" async is:inline></script>
+  <script src="/another-script.js" defer is:inline></script>
+  <script type="module" src="/module-script.js" is:inline></script>
   
   <!-- Large inline style -->
   <style>
