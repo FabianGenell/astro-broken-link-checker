@@ -71,35 +71,54 @@ function checkImagesWithoutAlt(root, issuesMap, documentPath, distPath, options 
   const allImages = root.querySelectorAll('img');
 
   for (const img of allImages) {
+    // Collect element attributes
+    const src = img.getAttribute('src') || '';
+    const width = img.getAttribute('width') || '';
+    const height = img.getAttribute('height') || '';
+    const className = img.getAttribute('class') || '';
+
+    // Build element attributes for detailed reporting
+    const attributes = {
+      src
+    };
+    if (width) attributes.width = width;
+    if (height) attributes.height = height;
+    if (className) attributes.class = className;
+
+    // Build element info
+    const elementInfo = {
+      html: img.outerHTML,
+      attributes,
+      selector: `img[src="${src}"]`
+    };
+
     // Check if alt attribute exists
     if (!img.hasAttribute('alt')) {
       let issueDesc = 'Missing alt attribute on <img>';
-
-      // If the image has a src, include it in the issue description
-      const src = img.getAttribute('src');
-      if (src) {
-        issueDesc = `Missing alt attribute on <img src="${src}">`;
-      }
 
       addIssue(
         issuesMap,
         documentPath,
         issueDesc,
         CATEGORIES.A11Y_ALT_MISSING,
-        distPath
+        distPath,
+        elementInfo
       );
     }
     // Check for empty alt when it shouldn't be empty
     // Note: Empty alt is valid for decorative images, but we might flag it anyway
     // and let the user decide if it's appropriate
     else if (img.getAttribute('alt').trim() === '' && !options.ignoreEmptyAlt) {
-      const src = img.getAttribute('src') || '';
+      // Add alt to attributes for reporting
+      attributes.alt = '';
+
       addIssue(
         issuesMap,
         documentPath,
-        `Empty alt attribute on <img src="${src}">`,
+        'Empty alt attribute on <img>',
         CATEGORIES.A11Y_ALT_EMPTY,
-        distPath
+        distPath,
+        elementInfo
       );
     }
   }
@@ -121,17 +140,42 @@ function checkEmptyInteractiveElements(root, issuesMap, documentPath, distPath, 
     const buttonText = button.textContent.trim();
     const ariaLabel = button.getAttribute('aria-label');
     const ariaLabelledBy = button.getAttribute('aria-labelledby');
+    const id = button.getAttribute('id') || '';
+    const className = button.getAttribute('class') || '';
+    const type = button.getAttribute('type') || '';
+
+    // Build element attributes for detailed reporting
+    const attributes = {};
+    if (id) attributes.id = id;
+    if (className) attributes.class = className;
+    if (type) attributes.type = type;
+    if (ariaLabel) attributes['aria-label'] = ariaLabel;
+    if (ariaLabelledBy) attributes['aria-labelledby'] = ariaLabelledBy;
 
     // A button should have either text content, aria-label, or aria-labelledby
     if ((!buttonText || buttonText === '') &&
         (!ariaLabel || ariaLabel.trim() === '') &&
         (!ariaLabelledBy || ariaLabelledBy.trim() === '')) {
+
+      // Create selector based on available attributes
+      let selector = 'button';
+      if (id) selector = `button#${id}`;
+      else if (className) selector = `button.${className.split(' ')[0]}`;
+      else if (type) selector = `button[type="${type}"]`;
+
+      const elementInfo = {
+        html: button.outerHTML,
+        attributes,
+        selector
+      };
+
       addIssue(
         issuesMap,
         documentPath,
         'Empty button without accessible text',
         CATEGORIES.A11Y_INTERACTIVE,
-        distPath
+        distPath,
+        elementInfo
       );
     }
   }
@@ -143,22 +187,45 @@ function checkEmptyInteractiveElements(root, issuesMap, documentPath, distPath, 
     const ariaLabel = link.getAttribute('aria-label');
     const ariaLabelledBy = link.getAttribute('aria-labelledby');
     const href = link.getAttribute('href') || '';
+    const id = link.getAttribute('id') || '';
+    const className = link.getAttribute('class') || '';
 
     // Skip links that are fragments only, as they're often controls
     if (href.startsWith('#') && href.length > 1) {
       continue;
     }
 
+    // Build element attributes for detailed reporting
+    const attributes = {
+      href
+    };
+    if (id) attributes.id = id;
+    if (className) attributes.class = className;
+    if (ariaLabel) attributes['aria-label'] = ariaLabel;
+    if (ariaLabelledBy) attributes['aria-labelledby'] = ariaLabelledBy;
+
     // A link should have either text content, aria-label, or aria-labelledby
     if ((!linkText || linkText === '') &&
         (!ariaLabel || ariaLabel.trim() === '') &&
         (!ariaLabelledBy || ariaLabelledBy.trim() === '')) {
+
+      // Create selector based on available attributes
+      let selector = `a[href="${href}"]`;
+      if (id) selector = `a#${id}`;
+
+      const elementInfo = {
+        html: link.outerHTML,
+        attributes,
+        selector
+      };
+
       addIssue(
         issuesMap,
         documentPath,
-        `Empty link <a href="${href}"> without accessible text`,
+        'Empty link without accessible text',
         CATEGORIES.A11Y_INTERACTIVE,
-        distPath
+        distPath,
+        elementInfo
       );
     }
   }
@@ -179,6 +246,10 @@ function checkGenericLinkText(root, issuesMap, documentPath, distPath, options =
   for (const link of links) {
     const linkText = link.textContent.trim().toLowerCase();
     const href = link.getAttribute('href') || '';
+    const id = link.getAttribute('id') || '';
+    const className = link.getAttribute('class') || '';
+    const ariaLabel = link.getAttribute('aria-label');
+    const ariaLabelledBy = link.getAttribute('aria-labelledby');
 
     // Skip links with no text or empty href
     if (!linkText || !href) {
@@ -192,12 +263,37 @@ function checkGenericLinkText(root, issuesMap, documentPath, distPath, options =
     );
 
     if (isGeneric) {
+      // Build element attributes for detailed reporting
+      const attributes = {
+        href
+      };
+      if (id) attributes.id = id;
+      if (className) attributes.class = className;
+      if (ariaLabel) attributes['aria-label'] = ariaLabel;
+      if (ariaLabelledBy) attributes['aria-labelledby'] = ariaLabelledBy;
+
+      // Create selector based on available attributes
+      let selector = `a[href="${href}"]`;
+      if (id) selector = `a#${id}`;
+
+      const elementInfo = {
+        html: link.outerHTML,
+        attributes,
+        selector
+      };
+
+      // Find which generic text pattern matched
+      const matchedPattern = GENERIC_LINK_TEXTS.find(genericText =>
+        linkText === genericText || linkText.includes(genericText)
+      );
+
       addIssue(
         issuesMap,
         documentPath,
-        `Generic link text "${linkText}" for <a href="${href}">`,
+        `Generic link text "${linkText}" (matches pattern "${matchedPattern}")`,
         CATEGORIES.A11Y_LINK_TEXT,
-        distPath
+        distPath,
+        elementInfo
       );
     }
   }

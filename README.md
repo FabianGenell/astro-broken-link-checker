@@ -117,7 +117,7 @@ npm install github:FabianGenell/astro-seo-checker@5b4ebe0
 
 ## Configuration
 
-Update your `astro.config.mjs` with your desired options:
+Update your `astro.config.mjs` with your desired options. Below is a complete configuration example with all available options:
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -166,6 +166,66 @@ export default defineConfig({
   ],
 });
 ```
+
+### Configuration Options Reference
+
+#### Report Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `reportFilePath` | `string` | `'site-report.log'` | Path where the report file will be saved. The file extension determines the format (`.log`/`.md` for Markdown, `.json` for JSON, `.csv` for CSV) unless overridden by `reportFormat`. |
+| `logFilePath` | `string` | `undefined` | Legacy alias for `reportFilePath`, maintained for backward compatibility. |
+| `reportFormat` | `string` | `undefined` | Format override that takes precedence over the file extension. Valid values: `'markdown'`, `'json'`, `'csv'`. |
+| `checkExternalLinks` | `boolean` | `false` | Whether to check external links. This can significantly increase the scan time, especially for sites with many outbound links. |
+
+#### SEO Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `emailAllowlist` | `string[]` | `[]` | List of email addresses to ignore when checking for exposed emails. Emails on this list won't trigger the "exposed email" warning. |
+| `checkCanonical` | `boolean` | `true` | Validate that the canonical link on each page points to the correct URL. |
+
+#### Phase Configuration
+
+Each phase can be individually enabled or disabled using the `phases` object:
+
+| Phase | Type | Default | Description |
+|-------|------|---------|-------------|
+| `foundation` | `boolean` | `true` | Foundation & Privacy checks: broken links and exposed emails. |
+| `metadata` | `boolean` | `true` | Metadata & Semantic Structure checks: missing or duplicate titles, descriptions, headings, and language attributes. |
+| `accessibility` | `boolean` | `true` | Accessibility & UX Flags checks: missing alt attributes, unlabeled interactive elements, and generic link text. |
+| `performance` | `boolean` | `true` | Performance & Technical SEO checks: layout shifts, render-blocking resources, and mobile viewport configuration. |
+| `crawlability` | `boolean` | `true` | Crawlability & Linking checks: robots.txt issues, noindex/nofollow tags, and internal linking problems. |
+| `ai_detection` | `boolean` | `true` | AI Content Detection checks: identifies potentially AI-generated content. |
+
+#### Accessibility Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `ignoreEmptyAlt` | `boolean` | `false` | When `true`, empty alt attributes (`alt=""`) won't be flagged as issues. Empty alt attributes are valid for decorative images. |
+
+#### Performance & Technical SEO Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `checkResourceSizes` | `boolean` | `false` | Enable checking for oversized resources that might impact page performance. |
+| `imageSizeThreshold` | `number` | `200` | Size threshold for images in KB. Images larger than this will be flagged. |
+| `inlineScriptThreshold` | `number` | `2` | Size threshold for inline scripts in KB. Scripts larger than this will be flagged as candidates for externalization. |
+| `inlineStyleThreshold` | `number` | `1` | Size threshold for inline styles in KB. Styles larger than this will be flagged as candidates for externalization. |
+
+#### Crawlability Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `minInternalLinks` | `number` | `3` | Minimum recommended internal links per page. Pages with fewer links will be flagged for potentially poor internal linking structure. |
+| `maxInternalLinks` | `number` | `100` | Maximum recommended internal links per page. Pages with more links will be flagged for potentially diluting link equity. |
+
+#### AI Detection Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `aiDetectionThreshold` | `number` | `60` | Score threshold (0-100) for flagging AI-generated content. Higher values mean fewer false positives but more false negatives. |
+| `aiDetectionExcludePaths` | `string[]` | `[]` | Paths to exclude from AI detection. Useful for blog posts or pages where AI content is expected or acceptable. |
 
 ## Reports
 

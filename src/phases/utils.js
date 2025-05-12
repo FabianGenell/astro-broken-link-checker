@@ -49,8 +49,13 @@ export function normalizeHtmlFilePath(filePath, distPath = '') {
  * @param {string} issue - Description of the issue
  * @param {string} category - Category identifier for grouping issues
  * @param {string} distPath - Path to the distribution directory for normalization
+ * @param {Object} [elementInfo] - Optional information about the specific element causing the issue
+ * @param {string} [elementInfo.selector] - CSS selector identifying the element
+ * @param {string} [elementInfo.html] - HTML snippet of the problematic element
+ * @param {Object} [elementInfo.attributes] - Key attributes of the element
+ * @param {number} [elementInfo.line] - Line number in the document where the issue occurs
  */
-export function addIssue(issuesMap, documentPath, issue, category, distPath) {
+export function addIssue(issuesMap, documentPath, issue, category, distPath, elementInfo = null) {
   // Normalize document path to make it consistent
   const normalizedPath = normalizeHtmlFilePath(documentPath, distPath);
 
@@ -61,13 +66,45 @@ export function addIssue(issuesMap, documentPath, issue, category, distPath) {
 
   const categoryMap = issuesMap.get(category);
 
+  // Enhance issue description with element info if provided
+  let enhancedIssue = issue;
+  if (elementInfo) {
+    // Add line number if available
+    if (elementInfo.line) {
+      enhancedIssue += ` [line: ${elementInfo.line}]`;
+    }
+
+    // Add HTML snippet if available (limited to reasonable length)
+    if (elementInfo.html) {
+      const htmlSnippet = elementInfo.html.length > 100
+        ? elementInfo.html.substring(0, 97) + '...'
+        : elementInfo.html;
+      enhancedIssue += `\nElement: ${htmlSnippet}`;
+    }
+
+    // Add key attributes if available
+    if (elementInfo.attributes && Object.keys(elementInfo.attributes).length > 0) {
+      const attrsStr = Object.entries(elementInfo.attributes)
+        .map(([key, value]) => `${key}="${value}"`)
+        .join(' ');
+      if (attrsStr && !enhancedIssue.includes(attrsStr)) {
+        enhancedIssue += `\nAttributes: ${attrsStr}`;
+      }
+    }
+
+    // Add CSS selector if available and not already in the issue description
+    if (elementInfo.selector && !enhancedIssue.includes(elementInfo.selector)) {
+      enhancedIssue += `\nSelector: ${elementInfo.selector}`;
+    }
+  }
+
   // Create issue if it doesn't exist
-  if (!categoryMap.has(issue)) {
-    categoryMap.set(issue, new Set());
+  if (!categoryMap.has(enhancedIssue)) {
+    categoryMap.set(enhancedIssue, new Set());
   }
 
   // Add document to the issue's set of affected pages
-  categoryMap.get(issue).add(normalizedPath);
+  categoryMap.get(enhancedIssue).add(normalizedPath);
 }
 
 /**

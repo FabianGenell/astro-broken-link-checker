@@ -6,6 +6,46 @@ import { runPhases, phases } from './src/phases/index.js';
 import { formatReport, OUTPUT_FORMATS } from './src/formatters/index.js';
 import fastGlob from 'fast-glob';
 
+/**
+ * Configuration options for the Astro SEO Checker integration
+ *
+ * @typedef {Object} AstroSeoCheckerOptions
+ *
+ * @property {string} [reportFilePath='site-report.log'] - Path where the report file will be saved. Extension determines format unless overridden
+ * @property {string} [logFilePath] - Legacy alias for reportFilePath, maintained for backward compatibility
+ * @property {string} [reportFormat] - Report format override ('markdown', 'json', 'csv') regardless of file extension
+ * @property {boolean} [checkExternalLinks=false] - Whether to check external links (significantly slower)
+ *
+ * @property {string[]} [emailAllowlist=[]] - List of email addresses to ignore when checking for exposed emails
+ * @property {boolean} [checkCanonical=true] - Validate the canonical link on each page
+ *
+ * @property {Object} [phases] - Enable/disable specific check phases
+ * @property {boolean} [phases.foundation=true] - Foundation & Privacy checks
+ * @property {boolean} [phases.metadata=true] - Metadata & Semantic Structure checks
+ * @property {boolean} [phases.accessibility=true] - Accessibility & UX Flags checks
+ * @property {boolean} [phases.performance=true] - Performance & Technical SEO checks
+ * @property {boolean} [phases.crawlability=true] - Crawlability & Linking checks
+ * @property {boolean} [phases.ai_detection=true] - AI Content Detection checks
+ *
+ * @property {boolean} [ignoreEmptyAlt=false] - Don't flag empty alt attributes (for decorative images)
+ *
+ * @property {boolean} [checkResourceSizes=false] - Enable file size checking for resources
+ * @property {number} [imageSizeThreshold=200] - Size threshold for images in KB (flags larger images)
+ * @property {number} [inlineScriptThreshold=2] - Size threshold for inline scripts in KB (flags larger scripts)
+ * @property {number} [inlineStyleThreshold=1] - Size threshold for inline styles in KB (flags larger styles)
+ *
+ * @property {number} [minInternalLinks=3] - Minimum recommended internal links per page
+ * @property {number} [maxInternalLinks=100] - Maximum recommended internal links per page
+ *
+ * @property {number} [aiDetectionThreshold=60] - Score threshold (0-100) for flagging AI content
+ * @property {string[]} [aiDetectionExcludePaths=[]] - Paths to exclude from AI detection
+ */
+
+/**
+ * Astro SEO Checker integration main function
+ *
+ * @param {AstroSeoCheckerOptions} options - Configuration options
+ */
 export default function astroBrokenLinksChecker(options = {}) {
   // Default options
   const reportFilePath = options.reportFilePath || options.logFilePath || 'site-report.log';
@@ -22,7 +62,7 @@ export default function astroBrokenLinksChecker(options = {}) {
       }
     }
   }
-  
+
   // Configure email allowlist
   options.emailAllowlist = options.emailAllowlist || [];
 
