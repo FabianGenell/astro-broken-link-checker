@@ -117,9 +117,109 @@ npm install github:FabianGenell/astro-seo-checker@5b4ebe0
 > npm update astro-seo-checker    # For updating
 > ```
 
-## Configuration
+## Quick Start
 
-Update your `astro.config.mjs` with your desired options. Below is a complete configuration example with all available options:
+The Astro SEO Checker integration comes with a simplified API for common use cases, making it easier to get started:
+
+```js
+import { defineConfig } from 'astro/config';
+import { createStandardChecker } from 'astro-seo-checker';
+
+export default defineConfig({
+  // ... other configurations ...
+  integrations: [
+    // Use the standard preset with balanced SEO checks
+    createStandardChecker()
+  ],
+});
+```
+
+### Simplified API Options
+
+Choose from several preset configurations based on your needs:
+
+```js
+import { defineConfig } from 'astro/config';
+import {
+  createMinimalChecker,
+  createStandardChecker,
+  createComprehensiveChecker,
+  createPerformanceChecker,
+  createAccessibilityChecker
+} from 'astro-seo-checker';
+
+export default defineConfig({
+  integrations: [
+    // Choose the configuration that best fits your needs:
+
+    // 1. Minimal checks (just broken links and metadata)
+    createMinimalChecker('site-report.log'),
+
+    // 2. Standard checks with external link checking (balanced set of checks)
+    createStandardChecker('site-report.log', true),
+
+    // 3. Comprehensive checks (all checks enabled, more strict thresholds)
+    createComprehensiveChecker(),
+
+    // 4. Performance-focused checks only
+    createPerformanceChecker('performance-report.log'),
+
+    // 5. Accessibility-focused checks only
+    createAccessibilityChecker('a11y-report.log'),
+  ],
+});
+```
+
+### Customizing the Output Format
+
+You can easily specify different output formats:
+
+```js
+import { defineConfig } from 'astro/config';
+import { createFormattedChecker } from 'astro-seo-checker';
+
+export default defineConfig({
+  integrations: [
+    // Get results in JSON format for programmatic processing
+    createFormattedChecker('json', 'seo-results.json')
+
+    // Or CSV format for spreadsheet import
+    // createFormattedChecker('csv', 'seo-results.csv')
+  ],
+});
+```
+
+### Creating Custom Configurations
+
+For more advanced needs, you can extend any preset with custom options:
+
+```js
+import { defineConfig } from 'astro/config';
+import {
+  createCustomChecker,
+  standardPreset,
+  extendPreset
+} from 'astro-seo-checker';
+
+export default defineConfig({
+  integrations: [
+    // Extend the standard preset with custom options
+    createCustomChecker({
+      checkExternalLinks: true,
+      emailAllowlist: ['contact@example.com'],
+      aiDetectionThreshold: 75
+    }),
+
+    // Or create your completely custom configuration
+    // (while still benefiting from TypeScript type checking)
+    // astroSeoChecker({ ... your custom options ... })
+  ],
+});
+```
+
+## Advanced Configuration
+
+For complete control, you can use the full configuration API with all available options:
 
 ```js
 import { defineConfig } from 'astro/config';

@@ -15,42 +15,25 @@ import { checkPerformancePhase } from './performance-phase.js';
 import { checkCrawlabilityPhase } from './crawlability-phase.js';
 import { checkAiDetectionPhase } from './ai-detection-phase.js';
 
-// Import phase identifiers
-import { PHASE_IDS } from './types.js';
-import { AstroLogger, PhaseOptions } from '../../index.js';
+// Import types
+import { PHASE_IDS, PhaseOptions, AstroLogger } from '../types/index.js';
 
-/**
- * Phase handler function type
- */
-export type PhaseHandler = (
+// Phase handler function type
+type PhaseHandler = (
   htmlContent: string,
   issuesMap: Map<string, Map<string, Set<string>>>,
   baseUrl: string,
   documentPath: string,
   distPath: string,
-  options?: Record<string, any>
+  options: PhaseOptions
 ) => Promise<void>;
 
-/**
- * Phase configuration
- */
-export interface Phase {
-  /** Display name of the phase */
+// Phase configuration type
+interface PhaseConfig {
   name: string;
-  /** Phase handler function */
   handler: PhaseHandler;
-  /** Description of what the phase checks */
   description: string;
-  /** Whether the phase is enabled */
   enabled: boolean;
-}
-
-/**
- * Phase with ID type
- */
-export interface PhaseWithId extends Phase {
-  /** Phase identifier */
-  id: string;
 }
 
 // Re-export phase modules for direct access if needed
@@ -68,7 +51,7 @@ export {
  * - Each phase has a name, description, handler function and enabled status
  * - Used for configuration and phase execution
  */
-export const phases = {
+export const phases: Record<string, PhaseConfig> = {
   [PHASE_IDS.FOUNDATION]: {
     name: 'Foundation & Privacy',
     handler: checkFoundationPhase,
@@ -105,7 +88,7 @@ export const phases = {
     description: 'Detects potentially AI-generated content based on writing patterns',
     enabled: true
   }
-} as const;
+};
 
 /**
  * Runs all enabled SEO check phases on a given HTML document
@@ -124,7 +107,7 @@ export async function runPhases(
   baseUrl: string,
   documentPath: string,
   distPath: string,
-  options: PhaseOptions,
+  options: PhaseOptions = {} as PhaseOptions,
   logger?: AstroLogger
 ): Promise<void> {
   // Get a simplified path for logs
@@ -135,7 +118,7 @@ export async function runPhases(
   const isVerboseLogging = options.verbose || false;
 
   // Get all enabled phases with valid handlers
-  const enabledPhases: PhaseWithId[] = Object.entries(phases)
+  const enabledPhases = Object.entries(phases)
     .filter(([_, phase]) => phase.enabled && typeof phase.handler === 'function')
     .map(([id, phase]) => ({ id, ...phase }));
 
@@ -150,12 +133,12 @@ export async function runPhases(
         distPath,
         options
       );
-    } catch (error: any) {  // Using any here as error may not be Error type
+    } catch (error) {
       // Always log errors
-      logger?.error(`Error in phase '${phase.name}' on page ${simplePath}: ${error.message}`);
+      logger?.error(`Error in phase '${phase.name}' on page ${simplePath}: ${error instanceof Error ? error.message : String(error)}`);
 
       // Log the stack trace if in verbose mode
-      if (isVerboseLogging && error.stack) {
+      if (isVerboseLogging && error instanceof Error && error.stack) {
         logger?.error(error.stack);
       }
     }
