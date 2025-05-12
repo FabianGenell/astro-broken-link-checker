@@ -18,13 +18,13 @@ An Astro integration that checks for broken links and SEO issues in your website
 
 The integration includes a phased SEO analysis system:
 
-#### Phase 1: Foundation + Privacy
+#### Foundation & Privacy Phase
 
 - **Email Exposure Detection**: Finds and reports raw email addresses in page content that could be harvested by spambots.
 - **Unobfuscated Mailto Links**: Warns about `mailto:` links that display the raw email address.
 - **Email Allowlist**: Configure exemptions for specific email addresses that don't need to be obfuscated.
 
-#### Phase 2: Metadata & Semantic Structure
+#### Metadata & Semantic Structure Phase
 
 - **Metadata Validation**: Checks for missing or empty `<title>` and `<meta name="description">` tags.
 - **Duplicate Detection**: Identifies pages using identical titles or descriptions across your site.
@@ -32,13 +32,13 @@ The integration includes a phased SEO analysis system:
 - **Language Attribute**: Validates the presence and value of the `<html lang="">` attribute.
 - **Canonical Links**: Verifies that `<link rel="canonical">` points to the correct page.
 
-#### Phase 3: Accessibility & UX Flags
+#### Accessibility & UX Flags Phase
 
 - **Image Alternatives**: Identifies `<img>` tags missing required `alt` attributes.
 - **Interactive Elements**: Flags buttons and links without accessible text content or ARIA labels.
 - **Generic Link Text**: Detects non-descriptive link text like "click here", "read more", or "learn more" that provides poor context for screen readers and search engines.
 
-#### Phase 4: Performance & Technical SEO
+#### Performance & Technical SEO Phase
 
 - **Layout Shift Prevention**: Detects images missing width and height attributes that can cause layout shifts.
 - **Render-Blocking Resources**: Identifies JavaScript files without async/defer attributes and blocking CSS.
@@ -46,7 +46,7 @@ The integration includes a phased SEO analysis system:
 - **Mobile Viewport**: Validates mobile viewport meta tag configuration and zoom capability.
 - **Resource Size**: Optionally checks for large unoptimized images and other resources.
 
-#### Phase 5: Crawlability & Linking
+#### Crawlability & Linking Phase
 
 - **Robots Meta Tags**: Identifies pages with noindex, nofollow, or noarchive directives that affect search engine crawling.
 - **Internal Linking Analysis**: Detects pages with too few or too many internal links affecting crawl efficiency.
