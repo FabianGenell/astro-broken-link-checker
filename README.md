@@ -153,19 +153,19 @@ export default defineConfig({
     // Choose the configuration that best fits your needs:
 
     // 1. Minimal checks (just broken links and metadata)
-    createMinimalChecker('site-report.log'),
+    createMinimalChecker('site-report.md'),
 
-    // 2. Standard checks with external link checking (balanced set of checks)
-    createStandardChecker('site-report.log', true),
+    // 2. Standard checks with external link checking, custom output directory
+    createStandardChecker('site-report.md', true, 'reports'),
 
     // 3. Comprehensive checks (all checks enabled, more strict thresholds)
     createComprehensiveChecker(),
 
-    // 4. Performance-focused checks only
-    createPerformanceChecker('performance-report.log'),
+    // 4. Performance-focused checks only with JSON format
+    createPerformanceChecker('performance-report.json'),
 
-    // 5. Accessibility-focused checks only
-    createAccessibilityChecker('a11y-report.log'),
+    // 5. Accessibility-focused checks only with CSV format and absolute paths
+    createAccessibilityChecker('a11y-report.csv', undefined, true),
   ],
 });
 ```
@@ -181,10 +181,13 @@ import { createFormattedChecker } from 'astro-seo-checker';
 export default defineConfig({
   integrations: [
     // Get results in JSON format for programmatic processing
-    createFormattedChecker('json', 'seo-results.json')
+    createFormattedChecker('json', 'seo-results.json'),
 
-    // Or CSV format for spreadsheet import
-    // createFormattedChecker('csv', 'seo-results.csv')
+    // Or CSV format for spreadsheet import with custom output directory
+    // createFormattedChecker('csv', 'seo-results.csv', standardPreset, 'public'),
+
+    // Or using absolute paths for use outside the dist directory
+    // createFormattedChecker('json', '/var/log/astro/seo-results.json', standardPreset, null, true)
   ],
 });
 ```
@@ -200,6 +203,7 @@ import {
   standardPreset,
   extendPreset
 } from 'astro-seo-checker';
+import astroSeoChecker from 'astro-seo-checker';
 
 export default defineConfig({
   integrations: [
@@ -210,9 +214,22 @@ export default defineConfig({
       aiDetectionThreshold: 75
     }),
 
-    // Or create your completely custom configuration
-    // (while still benefiting from TypeScript type checking)
-    // astroSeoChecker({ ... your custom options ... })
+    // Or create your completely custom configuration with focused checks and custom output path
+    astroSeoChecker({
+      reportFilePath: 'reports/seo-analysis.json',  // Custom path in a reports directory
+      reportFormat: 'json',                        // JSON format for better data processing
+      reportOutputDir: 'public',                   // Put in public directory to access after build
+      useAbsolutePaths: true,                      // Option to use absolute paths
+      checkExternalLinks: false,
+      phases: {
+        foundation: true,         // Check broken links
+        metadata: true,           // Check metadata
+        accessibility: false,     // Skip accessibility
+        performance: false,       // Skip performance
+        crawlability: false,      // Skip crawlability
+        ai_detection: true        // Check for AI content
+      }
+    })
   ],
 });
 ```
@@ -230,8 +247,10 @@ export default defineConfig({
   integrations: [
     astroSeoChecker({
       // Report options
-      reportFilePath: 'site-report.log',  // Path for the report (extension determines format)
-      reportFormat: 'markdown',          // Optional format override (markdown, json, csv)
+      reportFilePath: 'site-report.md',   // Path for the report (extension determines format)
+      reportFormat: 'markdown',           // Optional format override (markdown, json, csv)
+      reportOutputDir: 'reports',         // Custom directory for the report
+      useAbsolutePaths: false,            // Whether to use absolute paths
       checkExternalLinks: false,          // Check external links (slower)
 
       // SEO checker options
@@ -275,9 +294,11 @@ export default defineConfig({
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `reportFilePath` | `string` | `'site-report.log'` | Path where the report file will be saved. The file extension determines the format (`.log`/`.md` for Markdown, `.json` for JSON, `.csv` for CSV) unless overridden by `reportFormat`. |
+| `reportFilePath` | `string` | `'site-report.md'` | Path where the report file will be saved. The file extension determines the format (`.md` for Markdown, `.json` for JSON, `.csv` for CSV) unless overridden by `reportFormat`. |
 | `logFilePath` | `string` | `undefined` | Legacy alias for `reportFilePath`, maintained for backward compatibility. |
 | `reportFormat` | `string` | `undefined` | Format override that takes precedence over the file extension. Valid values: `'markdown'`, `'json'`, `'csv'`. |
+| `reportOutputDir` | `string` | `undefined` | Custom output directory for reports (defaults to dist directory if not specified). Example: `'public'` to store reports in the public directory. |
+| `useAbsolutePaths` | `boolean` | `false` | Whether to use absolute paths for reports instead of relative to dist. When true, absolute reportFilePath values will be used directly. |
 | `checkExternalLinks` | `boolean` | `false` | Whether to check external links. This can significantly increase the scan time, especially for sites with many outbound links. |
 | `verbose` | `boolean` | `false` | Enable detailed logging during the scan process. Outputs more information about what's being checked and any errors encountered. |
 
@@ -334,12 +355,17 @@ Each phase can be individually enabled or disabled using the `phases` object:
 
 The integration produces a report file in your chosen format. The format is determined by:
 1. The `reportFormat` option if specified (overrides any file extension)
-2. The file extension of `reportFilePath` (`.log`/`.md` for Markdown, `.json` for JSON, `.csv` for CSV)
+2. The file extension of `reportFilePath` (`.md` for Markdown, `.json` for JSON, `.csv` for CSV)
 3. Defaults to Markdown format if neither of the above is specified
+
+The report file location is determined by:
+1. If `useAbsolutePaths` is true and `reportFilePath` is absolute, that exact path is used
+2. If `reportOutputDir` is specified, the file is placed in that directory (relative to the dist directory unless it's an absolute path)
+3. Otherwise, the file is placed in the dist directory
 
 ### Available Report Formats
 
-#### Markdown Format (.log or .md)
+#### Markdown Format (.md)
 A human-readable report with clear sections and formatting:
 
 - **Summary**: Total counts of broken links and SEO issues by category
