@@ -62,22 +62,57 @@ The integration includes a phased SEO analysis system:
 - **Content Scoring**: Provides a percentage score indicating likelihood of AI-generated content.
 - **Path Exclusions**: Configure specific paths to exclude from AI detection.
 
-## Installation
+## Installation and Updating
 
-Install the package and its peer dependencies using a [GitHub reference](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#github-urls) in your `package.json`:
+### Installation
+
+Since this package is not yet available on NPM, you have two options to install it:
+
+#### Option 1: Using npm install with GitHub URL
+
+```bash
+npm install github:FabianGenell/astro-seo-checker
+```
+
+This will add the package to your dependencies with the GitHub URL reference.
+
+#### Option 2: Manual package.json edit
+
+Add the package directly to your `package.json` using a [GitHub reference](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#github-urls):
 
 ```json
-  ...
   "dependencies": {
     "astro": "5.1.9",
     "astro-seo-checker": "FabianGenell/astro-seo-checker",
-    ...
+    // other dependencies
+  }
+```
+
+Then run `npm install` to install all dependencies.
+
+### Updating to Latest Version
+
+To update to the latest version when using a GitHub reference:
+
+```bash
+npm install github:FabianGenell/astro-seo-checker@main
+```
+
+Or specify a specific version using a commit hash, tag, or branch name:
+
+```bash
+# Using a specific tag
+npm install github:FabianGenell/astro-seo-checker@v1.0.0
+
+# Using a specific commit
+npm install github:FabianGenell/astro-seo-checker@5b4ebe0
 ```
 
 > [!NOTE]
 > In the future, if/when `astro-seo-checker` becomes available on NPM:
 > ```bash
-> npm install astro-seo-checker
+> npm install astro-seo-checker  # For initial installation
+> npm update astro-seo-checker    # For updating
 > ```
 
 ## Configuration
