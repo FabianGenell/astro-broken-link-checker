@@ -101,14 +101,14 @@ export default defineConfig({
       emailAllowlist: ['example@domain.com', 'admin@example.org'],  // Emails to ignore
       checkCanonical: true,               // Validate canonical links
 
-      // Enable/disable specific phases
+      // Enable/disable specific phases (all enabled by default)
       phases: {
-        foundation: true,    // Foundation & Privacy
-        metadata: true,      // Metadata & Semantic Structure
-        accessibility: true, // Accessibility & UX Flags
-        performance: true,   // Performance & Technical SEO
-        crawlability: true,  // Crawlability & Linking
-        ai_detection: false, // AI Content Detection (disabled by default)
+        foundation: true,     // Foundation & Privacy
+        metadata: true,       // Metadata & Semantic Structure
+        accessibility: true,  // Accessibility & UX Flags
+        performance: true,    // Performance & Technical SEO
+        crawlability: true,   // Crawlability & Linking
+        ai_detection: true,   // AI Content Detection
       },
 
       // Accessibility options

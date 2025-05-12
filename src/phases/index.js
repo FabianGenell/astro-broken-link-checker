@@ -38,37 +38,37 @@ export const phases = {
     name: 'Foundation & Privacy',
     handler: checkFoundationPhase,
     description: 'Checks for broken links and exposed emails',
-    enabled: true // Only Foundation is enabled by default
+    enabled: true
   },
   [PHASE_IDS.METADATA]: {
     name: 'Metadata & Semantic Structure',
     handler: checkMetadataPhase,
     description: 'Checks for missing or duplicate metadata and heading structure',
-    enabled: false
+    enabled: true
   },
   [PHASE_IDS.ACCESSIBILITY]: {
     name: 'Accessibility & UX Flags',
     handler: checkAccessibilityPhase,
     description: 'Checks for accessibility issues like missing alt tags and generic link text',
-    enabled: false
+    enabled: true
   },
   [PHASE_IDS.PERFORMANCE]: {
     name: 'Performance & Technical SEO',
     handler: checkPerformancePhase,
     description: 'Checks for performance issues like large images, render-blocking resources and mobile viewport',
-    enabled: false
+    enabled: true
   },
   [PHASE_IDS.CRAWLABILITY]: {
     name: 'Crawlability & Linking',
     handler: checkCrawlabilityPhase,
     description: 'Detects robots.txt issues, noindex/nofollow tags, and internal linking problems',
-    enabled: false
+    enabled: true
   },
   [PHASE_IDS.AI_DETECTION]: {
     name: 'AI Content Detection',
     handler: checkAiDetectionPhase,
     description: 'Detects potentially AI-generated content based on writing patterns',
-    enabled: false
+    enabled: true
   }
 };
 
