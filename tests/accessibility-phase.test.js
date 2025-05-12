@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { setupTests } from './setup.js';
 
-describe('Phase 3: Accessibility & UX Flags Tests', () => {
+describe('Accessibility & UX Flags Phase Tests', () => {
   let testProjectDir;
   let reportFilePath;
 

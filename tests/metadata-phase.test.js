@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { setupTests } from './setup.js';
 
-describe('Phase 2: Metadata & Semantic Structure Tests', () => {
+describe('Metadata & Semantic Structure Phase Tests', () => {
   let testProjectDir;
   let reportFilePath;
 
