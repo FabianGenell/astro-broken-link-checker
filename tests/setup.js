@@ -6,10 +6,14 @@ const testProjectDir = path.join(__dirname);
 
 /**
  * Shared test setup to avoid duplicate builds
+ * @param {Object} options - Options to pass to the Astro config
  */
-export async function setupTests() {
-  // Return if we've already built in this test run
-  if (global.__TEST_SETUP_COMPLETE__) {
+export async function setupTests(options = {}) {
+  // For special test cases, allow a new build with custom options
+  const customRun = Object.keys(options).length > 0;
+
+  // Return if we've already built in this test run and no custom options
+  if (global.__TEST_SETUP_COMPLETE__ && !customRun) {
     return { testProjectDir };
   }
 
@@ -39,8 +43,46 @@ export async function setupTests() {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    // Run the build process of the test project with special options
-    const buildResult = await execa('npm', ['run', 'build'], { 
+    // Create temporary Astro config if custom options provided
+    if (customRun) {
+      // Create a temporary config file with our custom options
+      const configContent = `
+import { defineConfig } from 'astro/config';
+import astroSeoChecker from 'astro-seo-checker';
+
+export default defineConfig({
+  redirects: {
+    '/redirected': '/about',
+  },
+  integrations: [astroSeoChecker(${JSON.stringify(options, null, 2)})],
+});
+      `;
+      const tempConfigPath = path.join(testProjectDir, 'astro.config.temp.mjs');
+      fs.writeFileSync(tempConfigPath, configContent);
+
+      // Run build with custom config
+      const buildResult = await execa('npx', ['astro', 'build', '--config', 'astro.config.temp.mjs'], {
+        cwd: testProjectDir,
+        env: {
+          ...process.env,
+          ASTRO_DISABLE_WATCH_MODE: 'true',
+          WATCH: 'false',
+          NO_WATCH: 'true'
+        }
+      });
+
+      // Cleanup temp config
+      fs.unlinkSync(tempConfigPath);
+
+      return {
+        testProjectDir,
+        buildResult,
+        customOptions: options
+      };
+    }
+
+    // Run the build process of the test project with default options
+    const buildResult = await execa('npm', ['run', 'build'], {
       cwd: testProjectDir,
       env: {
         ...process.env,

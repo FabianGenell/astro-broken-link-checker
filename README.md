@@ -54,6 +54,14 @@ The integration includes a phased SEO analysis system:
 - **Missing Files**: Checks for the presence of robots.txt and sitemap.xml in your build output.
 - **Validation**: Performs basic validation of robots.txt and sitemap.xml files.
 
+#### AI Content Detection Phase
+
+- **Pattern Analysis**: Analyzes text content for writing patterns commonly found in AI-generated content.
+- **Multiple Indicators**: Combines various signals such as transition phrases, hedging language, formality, vocabulary, and sentence structure.
+- **Configurable Threshold**: Set custom detection thresholds to balance between false positives and thorough detection.
+- **Content Scoring**: Provides a percentage score indicating likelihood of AI-generated content.
+- **Path Exclusions**: Configure specific paths to exclude from AI detection.
+
 ## Installation
 
 Install the package and its peer dependencies using a [GitHub reference](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#github-urls) in your `package.json`:
@@ -99,6 +107,7 @@ export default defineConfig({
         accessibility: true, // Accessibility & UX Flags
         performance: true,   // Performance & Technical SEO
         crawlability: true,  // Crawlability & Linking
+        ai_detection: false, // AI Content Detection (disabled by default)
       },
 
       // Accessibility options
@@ -112,7 +121,11 @@ export default defineConfig({
 
       // Crawlability options
       minInternalLinks: 3,           // Minimum recommended internal links per page
-      maxInternalLinks: 100          // Maximum recommended internal links per page
+      maxInternalLinks: 100,         // Maximum recommended internal links per page
+
+      // AI detection options
+      aiDetectionThreshold: 60,      // Score threshold (0-100) for flagging AI content
+      aiDetectionExcludePaths: ['blog/ai-news', 'ai-research'] // Paths to exclude from AI detection
     }),
   ],
 });
@@ -137,6 +150,7 @@ The integration produces a consolidated report file:
   - Technical SEO issues (mobile viewport configuration)
   - Crawlability warnings (noindex/nofollow tags, linking structure)
   - Missing critical files (robots.txt, sitemap.xml)
+  - AI content detection (potentially AI-generated text with confidence scores)
 
 ## Development and Testing
 

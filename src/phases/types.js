@@ -11,7 +11,8 @@ export const PHASE_IDS = {
   METADATA: 'metadata',
   ACCESSIBILITY: 'accessibility',
   PERFORMANCE: 'performance',
-  CRAWLABILITY: 'crawlability'
+  CRAWLABILITY: 'crawlability',
+  AI_DETECTION: 'ai_detection'
 };
 
 // Category identifiers - use these for consistent issue categorization
@@ -48,7 +49,10 @@ export const CATEGORIES = {
   CRAWL_NOARCHIVE: 'crawlability: noarchive',
   LINK_TOO_FEW: 'linking: too few links',
   LINK_TOO_MANY: 'linking: too many links',
-  LINK_NOFOLLOW: 'linking: nofollow internal'
+  LINK_NOFOLLOW: 'linking: nofollow internal',
+
+  // AI Detection phase categories
+  AI_CONTENT: 'content: potential ai text'
 };
 
 // Formatting for categories in reports
@@ -75,5 +79,6 @@ export const CATEGORY_FORMATTING = {
   [CATEGORIES.CRAWL_NOARCHIVE]: '💾 Crawlability: Archiving Blocked',
   [CATEGORIES.LINK_TOO_FEW]: '🔗 Linking: Too Few Internal Links',
   [CATEGORIES.LINK_TOO_MANY]: '🔗 Linking: Too Many Internal Links',
-  [CATEGORIES.LINK_NOFOLLOW]: '🔗 Linking: Nofollow on Internal Links'
+  [CATEGORIES.LINK_NOFOLLOW]: '🔗 Linking: Nofollow on Internal Links',
+  [CATEGORIES.AI_CONTENT]: '🤖 Content: Potentially AI-Generated Text'
 };

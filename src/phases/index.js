@@ -13,6 +13,7 @@ import { checkMetadataPhase } from './metadata-phase.js';
 import { checkAccessibilityPhase } from './accessibility-phase.js';
 import { checkPerformancePhase } from './performance-phase.js';
 import { checkCrawlabilityPhase } from './crawlability-phase.js';
+import { checkAiDetectionPhase } from './ai-detection-phase.js';
 
 // Import phase identifiers
 import { PHASE_IDS } from './types.js';
@@ -23,7 +24,8 @@ export {
   checkMetadataPhase,
   checkAccessibilityPhase,
   checkPerformancePhase,
-  checkCrawlabilityPhase
+  checkCrawlabilityPhase,
+  checkAiDetectionPhase
 };
 
 /**
@@ -60,6 +62,12 @@ export const phases = {
     name: 'Crawlability & Linking',
     handler: checkCrawlabilityPhase,
     description: 'Detects robots.txt issues, noindex/nofollow tags, and internal linking problems',
+    enabled: false
+  },
+  [PHASE_IDS.AI_DETECTION]: {
+    name: 'AI Content Detection',
+    handler: checkAiDetectionPhase,
+    description: 'Detects potentially AI-generated content based on writing patterns',
     enabled: false
   }
 };
