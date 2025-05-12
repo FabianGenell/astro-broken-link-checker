@@ -3,9 +3,10 @@ import { checkPhase1 } from './phase-1.js';
 import { checkPhase2 } from './phase-2.js';
 import { checkPhase3 } from './phase-3.js';
 import { checkPhase4 } from './phase-4.js';
+import { checkPhase5 } from './phase-5.js';
 
 // Re-export phase modules
-export { checkPhase1, checkPhase2, checkPhase3, checkPhase4 };
+export { checkPhase1, checkPhase2, checkPhase3, checkPhase4, checkPhase5 };
 
 // Export map of all phases for configuration
 export const phases = {
@@ -35,9 +36,9 @@ export const phases = {
   },
   5: {
     name: 'Crawlability & Linking',
-    handler: null, // Not implemented yet
-    description: 'Detects SEO and crawlability issues',
-    enabled: false
+    handler: checkPhase5,
+    description: 'Detects robots.txt issues, noindex/nofollow tags, and internal linking problems',
+    enabled: false // Default disabled, can be enabled in config
   }
 };
 

@@ -46,7 +46,13 @@ The integration includes a phased SEO analysis system:
 - **Mobile Viewport**: Validates mobile viewport meta tag configuration and zoom capability.
 - **Resource Size**: Optionally checks for large unoptimized images and other resources.
 
-More phases with additional SEO checks will be added in future releases, following our [roadmap](spec/new-phases.md).
+#### Phase 5: Crawlability & Linking
+
+- **Robots Meta Tags**: Identifies pages with noindex, nofollow, or noarchive directives that affect search engine crawling.
+- **Internal Linking Analysis**: Detects pages with too few or too many internal links affecting crawl efficiency.
+- **Nofollow Internal Links**: Warns about internal links with rel="nofollow" that can harm your site's crawlability.
+- **Missing Files**: Checks for the presence of robots.txt and sitemap.xml in your build output.
+- **Validation**: Performs basic validation of robots.txt and sitemap.xml files.
 
 ## Installation
 
@@ -92,7 +98,7 @@ export default defineConfig({
         2: true,    // Phase 2: Metadata & Semantic Structure
         3: true,    // Phase 3: Accessibility & UX Flags
         4: true,    // Phase 4: Performance & Technical SEO
-        // Additional phases will be added here
+        5: true,    // Phase 5: Crawlability & Linking
       },
 
       // Accessibility options
@@ -103,6 +109,10 @@ export default defineConfig({
       imageSizeThreshold: 200,       // Size threshold for images in KB
       inlineScriptThreshold: 2,      // Size threshold for inline scripts in KB
       inlineStyleThreshold: 1,       // Size threshold for inline styles in KB
+
+      // Crawlability options
+      minInternalLinks: 3,           // Minimum recommended internal links per page
+      maxInternalLinks: 100          // Maximum recommended internal links per page
     }),
   ],
 });
@@ -125,6 +135,8 @@ The integration produces a consolidated report file:
   - Accessibility issues (missing alt tags, unlabeled elements, generic link text)
   - Performance problems (layout shifts, render-blocking resources)
   - Technical SEO issues (mobile viewport configuration)
+  - Crawlability warnings (noindex/nofollow tags, linking structure)
+  - Missing critical files (robots.txt, sitemap.xml)
 
 ## Development and Testing
 

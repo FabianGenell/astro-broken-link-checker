@@ -1,0 +1,29 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Robots & Crawlability Issues</title>
+  <meta name="description" content="This page contains various crawlability issues to test Phase 5">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Meta robots tags -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noarchive">
+</head>
+<body>
+  <h1>Robots & Crawlability Issues Test Page</h1>
+  
+  <!-- Internal links with nofollow -->
+  <div>
+    <h2>Nofollow internal links</h2>
+    <a href="/about" rel="nofollow">About page with nofollow</a>
+    <a href="/contact" rel="nofollow">Contact page with nofollow</a>
+  </div>
+  
+  <!-- Very few internal links (only 2) -->
+  <!-- Will be flagged for having too few internal links -->
+  
+  <a href="/">Home</a>
+</body>
+</html>

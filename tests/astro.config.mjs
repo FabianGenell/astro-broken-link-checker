@@ -14,6 +14,7 @@ export default defineConfig({
       2: true, // Enable Phase 2 (Metadata & Semantic Structure)
       3: true, // Enable Phase 3 (Accessibility & UX Flags)
       4: true, // Enable Phase 4 (Performance & Technical SEO)
+      5: true, // Enable Phase 5 (Crawlability & Linking)
     },
     checkCanonical: true, // Enable canonical link checking
     ignoreEmptyAlt: true, // Don't flag empty alt attributes (they might be intentional for decorative images),
