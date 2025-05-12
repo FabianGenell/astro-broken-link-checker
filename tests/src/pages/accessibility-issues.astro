@@ -1,0 +1,47 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Accessibility Issues</title>
+  <meta name="description" content="This page contains various accessibility issues to test Phase 3">
+</head>
+<body>
+  <h1>Accessibility Issues Test Page</h1>
+  
+  <!-- Images with missing alt attributes -->
+  <div>
+    <h2>Images without alt attributes</h2>
+    <img src="/example-image.jpg">
+    <img src="/another-image.png" title="Has title but no alt">
+    <img src="/decorative-image.svg" alt=""> <!-- Empty alt is actually OK for decorative images -->
+  </div>
+  
+  <!-- Empty interactive elements -->
+  <div>
+    <h2>Empty interactive elements</h2>
+    <button></button>
+    <button> </button>
+    <button aria-label="This button has an aria-label"><!-- This is fine --></button>
+    <a href="/some-page"></a>
+    <a href="/another-page"> </a>
+    <a href="/valid-page" aria-label="This link has an aria-label"><!-- This is fine --></a>
+  </div>
+  
+  <!-- Generic link text -->
+  <div>
+    <h2>Generic link text</h2>
+    <a href="/about">Click here</a> to learn about our company.
+    <p>Want to know more about our services? <a href="/services">Read more</a></p>
+    <p>Check out our latest products: <a href="/products">Learn more</a></p>
+    <p><a href="/blog">More info</a> is available on our blog.</p>
+    <p>For detailed specifications, view <a href="/specs">here</a>.</p>
+    
+    <!-- These are fine -->
+    <p><a href="/contact">Contact our support team</a></p>
+    <p><a href="/products/chairs">Ergonomic Office Chairs</a></p>
+  </div>
+  
+  <a href="/">Home</a>
+</body>
+</html>

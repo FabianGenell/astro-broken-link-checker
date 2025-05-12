@@ -190,13 +190,22 @@ ${issueCategories.length > 0 ? '  - ' + issueCategories.join('\n  - ') : ''}
 function formatCategoryName(category) {
   // Add specific formatting for each category
   const categoryFormatMap = {
+    // Phase 1 categories
     'privacy: exposed email': '🔒 Privacy: Exposed Email Addresses',
+
+    // Phase 2 categories
     'metadata: missing elements': '📄 Metadata: Missing Elements',
     'metadata: empty elements': '📄 Metadata: Empty Elements',
     'metadata: duplicates': '🔄 Metadata: Duplicates Across Pages',
     'semantic: heading structure': '🏗️ Semantic: Heading Structure Issues',
     'semantic: language': '🌐 Semantic: Language Attribute Issues',
-    'metadata: canonical': '🔗 Metadata: Canonical Link Issues'
+    'metadata: canonical': '🔗 Metadata: Canonical Link Issues',
+
+    // Phase 3 categories
+    'accessibility: missing alt': '🖼️ Accessibility: Missing Image Alternatives',
+    'accessibility: empty alt': '🖼️ Accessibility: Empty Alt Attributes',
+    'accessibility: unlabeled interactive': '🔘 Accessibility: Unlabeled Interactive Elements',
+    'accessibility: generic link text': '🔗 Accessibility: Generic Link Text'
   };
 
   // Return mapped category name if it exists

@@ -12,7 +12,9 @@ export default defineConfig({
     phases: {
       1: true, // Enable Phase 1 (Foundation + Privacy)
       2: true, // Enable Phase 2 (Metadata & Semantic Structure)
+      3: true, // Enable Phase 3 (Accessibility & UX Flags)
     },
     checkCanonical: true, // Enable canonical link checking
+    ignoreEmptyAlt: true, // Don't flag empty alt attributes (they might be intentional for decorative images)
   })],
 });

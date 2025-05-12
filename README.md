@@ -32,6 +32,12 @@ The integration includes a phased SEO analysis system:
 - **Language Attribute**: Validates the presence and value of the `<html lang="">` attribute.
 - **Canonical Links**: Verifies that `<link rel="canonical">` points to the correct page.
 
+#### Phase 3: Accessibility & UX Flags
+
+- **Image Alternatives**: Identifies `<img>` tags missing required `alt` attributes.
+- **Interactive Elements**: Flags buttons and links without accessible text content or ARIA labels.
+- **Generic Link Text**: Detects non-descriptive link text like "click here", "read more", or "learn more" that provides poor context for screen readers and search engines.
+
 More phases with additional SEO checks will be added in future releases, following our [roadmap](spec/new-phases.md).
 
 ## Installation
@@ -76,8 +82,12 @@ export default defineConfig({
       phases: {
         1: true,    // Phase 1: Foundation + Privacy
         2: true,    // Phase 2: Metadata & Semantic Structure
+        3: true,    // Phase 3: Accessibility & UX Flags
         // Additional phases will be added here
-      }
+      },
+
+      // Accessibility options
+      ignoreEmptyAlt: true,           // Don't flag empty alt attributes (decorative images)
     }),
   ],
 });

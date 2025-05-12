@@ -1,9 +1,10 @@
 // Export all phase modules
 import { checkPhase1 } from './phase-1.js';
 import { checkPhase2 } from './phase-2.js';
+import { checkPhase3 } from './phase-3.js';
 
 // Re-export phase modules
-export { checkPhase1, checkPhase2 };
+export { checkPhase1, checkPhase2, checkPhase3 };
 
 // Export map of all phases for configuration
 export const phases = {
@@ -21,9 +22,9 @@ export const phases = {
   },
   3: {
     name: 'Accessibility & UX Flags',
-    handler: null, // Not implemented yet
-    description: 'Checks for accessibility issues like missing alt tags',
-    enabled: false
+    handler: checkPhase3,
+    description: 'Checks for accessibility issues like missing alt tags and generic link text',
+    enabled: false // Default disabled, can be enabled in config
   },
   4: {
     name: 'Performance Warnings',
