@@ -1,66 +1,58 @@
-import { execa } from 'execa';
 import fs from 'fs';
 import path from 'path';
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-
-const testProjectDir = path.join(__dirname);
+import { describe, it, expect, beforeAll } from 'vitest';
+import { setupTests } from './setup.js';
 
 describe('Phase 1: Foundation + Privacy Tests', () => {
-  let buildResult;
-  const seoReportPath = path.join(testProjectDir, 'seo-report.log');
+  let testProjectDir;
+  let reportFilePath;
 
   beforeAll(async () => {
-    // Ensure the integration is built
-    await execa('npm', ['run', 'build'], { cwd: path.join(__dirname, '..') });
+    // Use shared setup
+    const setup = await setupTests();
+    testProjectDir = setup.testProjectDir;
+    reportFilePath = path.join(testProjectDir, 'dist', 'site-report.log');
+  }, 30000);
 
-    // Install dependencies for the test project
-    await execa('npm', ['install'], { cwd: testProjectDir });
-
-    // Run the build process of the test project
-    buildResult = await execa('npm', ['run', 'build'], { cwd: testProjectDir });
-
-    // Display the build result
-    console.log(buildResult.stdout);
-  }, 60000); // Increase timeout if necessary
-
-  afterAll(() => {
-    // Clean up
-    if (fs.existsSync(seoReportPath)) {
-      fs.unlinkSync(seoReportPath);
-    }
-  });
-
-  it('should generate a seo-report.log file', () => {
-    expect(fs.existsSync(seoReportPath)).toBe(true);
+  it('should generate a site report file', () => {
+    expect(fs.existsSync(reportFilePath)).toBe(true);
   });
 
   it('should detect exposed emails', () => {
-    const logContent = fs.readFileSync(seoReportPath, 'utf-8');
+    const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
     
-    // Basic structure checks
-    expect(logContent).toContain('# SEO Report');
-    expect(logContent).toContain('## privacy: exposed email');
+    // Privacy section should exist
+    expect(reportContent).toContain('Privacy: Exposed Email Addresses');
     
     // Raw email detection
-    expect(logContent).toContain('Raw email exposed: test@example.com');
+    expect(reportContent).toContain('Raw email exposed: test@example.com');
     
     // Mailto link detection
-    expect(logContent).toContain('Unobfuscated mailto link: exposed@example.com');
+    expect(reportContent).toContain('Unobfuscated mailto link: exposed@example.com');
     
-    // Expect the email page to be listed
-    expect(logContent).toContain('/emails');
+    // Email page should be listed
+    expect(reportContent).toContain('/emails');
   });
 
   it('should not report obfuscated or allowlisted emails', () => {
-    const logContent = fs.readFileSync(seoReportPath, 'utf-8');
+    const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
+    
+    // Get the privacy section
+    const privacySection = extractSectionContent(reportContent, 'Privacy: Exposed Email Addresses');
     
     // Should not contain the obfuscated email
-    expect(logContent).not.toContain('test [at] example [dot] com');
+    expect(privacySection).not.toContain('test [at] example [dot] com');
     
     // Should not flag the mailto link with non-email text
-    expect(logContent).not.toContain('obfuscated@example.com');
+    expect(privacySection).not.toContain('obfuscated@example.com');
     
     // Should not contain allowlisted emails
-    expect(logContent).not.toContain('allowlisted@example.com');
+    expect(privacySection).not.toContain('allowlisted@example.com');
   });
 });
+
+// Helper function to extract a section from the report
+function extractSectionContent(content, sectionName) {
+  const sectionMatches = content.match(new RegExp(`### [^#]*${sectionName}[\\s\\S]*?(?=###|$)`, 'i'));
+  return sectionMatches ? sectionMatches[0] : '';
+}

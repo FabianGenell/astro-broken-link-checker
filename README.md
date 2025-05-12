@@ -1,22 +1,38 @@
-# Astro Broken Links Checker
+# Astro Broken Links Checker & SEO Analyzer
 
-An Astro integration that checks for broken links in your website during static build. It logs any broken links to the console and writes them to a file, grouping them by the document in which they occur.
+An Astro integration that checks for broken links and SEO issues in your website during static build. It logs any problems to the console and writes them to log files, grouping them by category and the document in which they occur.
 
-## Goals
+## Features
+
+### Link Checking
 
 - **Checks Internal and External Links**: Validates all `<a href="...">` links found in your HTML pages.
 - **Logs Broken Links**: Outputs broken link information to both the console and a log file.
 - **Grouped by broken URL**: To allow for quick search and replacement, a list of all pages containing the broken URL is logged.
-- **Caching Mechanism**: Avoids redundant checks by caching the results of previously checked links, both internal and external, whether they are valid or not.
-- **Parallel Processing**: Checks links and does IO and network operations in parallel to improve performance. We first collect all links from all pages, then only check each once, first loading the tsv cache, then saving it again when we are done. All http requests happen in parallel.
+- **Caching Mechanism**: Avoids redundant checks by caching the results of previously checked links.
+- **Parallel Processing**: Checks links and does IO and network operations in parallel to improve performance.
 - **Local redirect awareness**: If a link is redirected in astro.config.mjs, it will be followed.
-- **Timeouts and retries**: To avoid false positives, links that fail to load with ECONNRESET are retried 3 times with exponential backoff. Timeouts are set to 3 seconnd max including retries.
-- **Link text preservation**: The contents of "href" are only normalized to a domain-relative path (like /foo/bar/) if they are "../relative" or "./relative" or "relative" etc. It is otherwise preserved for reportinng purposes. 
-- **Cross-platform compatibility**: The physical paths of the html files are normalized to domain relative paths.
-- **Disk cachinng of remote links**: To speed up subsequent builds, a tab-delimied text file is optionally written to disk containing the contents of all remote links checked and the status code returned by the server, in the form URL<tab>ok/failed<tab>status code<tab>ISO-8601-formatted timestamp. 
+- **Timeouts and retries**: To avoid false positives, links that fail to load with ECONNRESET are retried 3 times with exponential backoff.
 
+### SEO Analysis
 
+The integration includes a phased SEO analysis system:
 
+#### Phase 1: Foundation + Privacy
+
+- **Email Exposure Detection**: Finds and reports raw email addresses in page content that could be harvested by spambots.
+- **Unobfuscated Mailto Links**: Warns about `mailto:` links that display the raw email address.
+- **Email Allowlist**: Configure exemptions for specific email addresses that don't need to be obfuscated.
+
+#### Phase 2: Metadata & Semantic Structure
+
+- **Metadata Validation**: Checks for missing or empty `<title>` and `<meta name="description">` tags.
+- **Duplicate Detection**: Identifies pages using identical titles or descriptions across your site.
+- **Heading Structure**: Ensures each page has exactly one `<h1>` tag, and it contains content.
+- **Language Attribute**: Validates the presence and value of the `<html lang="">` attribute.
+- **Canonical Links**: Verifies that `<link rel="canonical">` points to the correct page.
+
+More phases with additional SEO checks will be added in future releases, following our [roadmap](spec/new-phases.md).
 
 ## Installation
 
@@ -36,7 +52,10 @@ Install the package and its peer dependencies using a [GitHub reference](https:/
 > npm install astro-broken-link-checker
 > ```
 
-Finally, update your `astro.config.mjs`
+## Configuration
+
+Update your `astro.config.mjs` with your desired options:
+
 ```js
 import { defineConfig } from 'astro/config';
 import astroBrokenLinksChecker from 'astro-broken-link-checker';
@@ -45,9 +64,54 @@ export default defineConfig({
   // ... other configurations ...
   integrations: [
     astroBrokenLinksChecker({
-      logFilePath: 'broken-links.log', // Optional: specify the log file path
-      checkExternalLinks: false // Optional: check external links (currently, caching to disk is not supported, and it is slow )
+      // Basic options
+      logFilePath: 'site-report.log',     // Path for the consolidated report
+      checkExternalLinks: false,          // Check external links (slower)
+
+      // SEO checker options
+      emailAllowlist: ['example@domain.com', 'admin@example.org'],  // Emails to ignore
+      checkCanonical: true,               // Validate canonical links
+
+      // Enable/disable specific phases
+      phases: {
+        1: true,    // Phase 1: Foundation + Privacy
+        2: true,    // Phase 2: Metadata & Semantic Structure
+        // Additional phases will be added here
+      }
     }),
   ],
 });
+```
+
+## Reports
+
+The integration produces a consolidated report file:
+
+**site-report.log**: A comprehensive Markdown-formatted report that includes:
+
+- **Summary**: Total counts of broken links and SEO issues by category
+- **Broken Links**: All broken links found during the build process, grouped by URL
+- **SEO Issues**: All detected SEO issues organized by category, such as:
+  - Privacy issues (exposed emails)
+  - Metadata issues (missing/empty titles, descriptions)
+  - Semantic structure problems (h1 tags, language attributes)
+  - Duplicate content warnings (identical titles or descriptions)
+  - Canonical link validation results
+
+## Development and Testing
+
+To contribute to this project:
+
+```bash
+# Clone the repository
+git clone https://github.com/imazen/astro-broken-link-checker.git
+
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Run tests with watch mode during development
+npm run test:watch
 ```

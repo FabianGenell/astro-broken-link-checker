@@ -1,7 +1,7 @@
 {
   "name": "astro-broken-links-checker",
   "version": "1.0.3",
-  "description": "An Astro integration to check for broken links in your website during development and build time.",
+  "description": "An Astro integration to check for broken links and SEO issues in your website during build time.",
   "main": "index.js",
   "type": "module",
   "exports": {
@@ -11,7 +11,9 @@
     "astro",
     "astro-integration",
     "broken-links",
-    "link-checker"
+    "link-checker",
+    "seo",
+    "seo-checker"
   ],
   "author": "Lilith River",
   "license": "Apache License 2.0",
@@ -27,7 +29,7 @@
   },
   "scripts": {
     "build": "echo 'no build needed'",
-    "test": "cd tests && npm run build && cd .. && vitest",
+    "test": "cd tests && npm run build && cd .. && vitest run", 
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch"
   }

@@ -1,8 +1,9 @@
 // Export all phase modules
 import { checkPhase1 } from './phase-1.js';
+import { checkPhase2 } from './phase-2.js';
 
 // Re-export phase modules
-export { checkPhase1 };
+export { checkPhase1, checkPhase2 };
 
 // Export map of all phases for configuration
 export const phases = {
@@ -12,12 +13,11 @@ export const phases = {
     description: 'Checks for broken links and exposed emails',
     enabled: true
   },
-  // Future phases will be added here
   2: {
     name: 'Metadata & Semantic Structure',
-    handler: null, // Not implemented yet
+    handler: checkPhase2,
     description: 'Checks for missing or duplicate metadata and heading structure',
-    enabled: false
+    enabled: false // Default disabled, can be enabled in config
   },
   3: {
     name: 'Accessibility & UX Flags',

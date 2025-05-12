@@ -49,9 +49,10 @@ export async function checkPhase1(
       continue;
     }
     
-    // Check if link text contains obfuscation
     const linkText = link.textContent.trim();
-    if (!isObfuscated(linkText) && linkText.includes('@')) {
+    
+    // Consider a mailto link unobfuscated if the link text IS the email address
+    if (linkText === email || linkText.includes(email)) {
       addIssue(
         issuesMap,
         documentPath,
