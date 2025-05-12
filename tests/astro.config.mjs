@@ -1,11 +1,11 @@
 import { defineConfig } from 'astro/config';
-import astroBrokenLinksChecker from 'astro-broken-links-checker';
+import astroSeoChecker from 'astro-seo-checker';
 
 export default defineConfig({
   redirects: {
     '/redirected': '/about',
   },
-  integrations: [astroBrokenLinksChecker({
+  integrations: [astroSeoChecker({
     logFilePath: 'site-report.log',  // Single consolidated log file
     checkExternalLinks: false,      // Disable external link checking for faster tests
     emailAllowlist: ['allowlisted@example.com'],

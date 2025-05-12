@@ -1,4 +1,4 @@
-# Astro Broken Links Checker & SEO Analyzer
+# Astro SEO Checker
 
 An Astro integration that checks for broken links and SEO issues in your website during static build. It logs any problems to the console and writes them to log files, grouping them by category and the document in which they occur.
 
@@ -62,14 +62,14 @@ Install the package and its peer dependencies using a [GitHub reference](https:/
   ...
   "dependencies": {
     "astro": "5.1.9",
-    "astro-broken-link-checker": "imazen/astro-broken-link-checker",
+    "astro-seo-checker": "FabianGenell/astro-seo-checker",
     ...
 ```
 
 > [!NOTE]
-> In the future, if/when `astro-broken-link-checker` becomes available on NPM:
+> In the future, if/when `astro-seo-checker` becomes available on NPM:
 > ```bash
-> npm install astro-broken-link-checker
+> npm install astro-seo-checker
 > ```
 
 ## Configuration
@@ -78,12 +78,12 @@ Update your `astro.config.mjs` with your desired options:
 
 ```js
 import { defineConfig } from 'astro/config';
-import astroBrokenLinksChecker from 'astro-broken-link-checker';
+import astroSeoChecker from 'astro-seo-checker';
 
 export default defineConfig({
   // ... other configurations ...
   integrations: [
-    astroBrokenLinksChecker({
+    astroSeoChecker({
       // Basic options
       logFilePath: 'site-report.log',     // Path for the consolidated report
       checkExternalLinks: false,          // Check external links (slower)
@@ -94,11 +94,11 @@ export default defineConfig({
 
       // Enable/disable specific phases
       phases: {
-        1: true,    // Phase 1: Foundation + Privacy
-        2: true,    // Phase 2: Metadata & Semantic Structure
-        3: true,    // Phase 3: Accessibility & UX Flags
-        4: true,    // Phase 4: Performance & Technical SEO
-        5: true,    // Phase 5: Crawlability & Linking
+        foundation: true,    // Foundation & Privacy
+        metadata: true,      // Metadata & Semantic Structure
+        accessibility: true, // Accessibility & UX Flags
+        performance: true,   // Performance & Technical SEO
+        crawlability: true,  // Crawlability & Linking
       },
 
       // Accessibility options
@@ -144,7 +144,7 @@ To contribute to this project:
 
 ```bash
 # Clone the repository
-git clone https://github.com/imazen/astro-broken-link-checker.git
+git clone https://github.com/FabianGenell/astro-seo-checker.git
 
 # Install dependencies
 npm install

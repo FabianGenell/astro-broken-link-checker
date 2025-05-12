@@ -1,12 +1,12 @@
 {
-  "name": "astro-broken-links-checker-tests",
+  "name": "astro-seo-checker-tests",
   "private": true,
   "scripts": {
     "build": "npx astro build",
     "dev": "npx astro dev"
   },
   "dependencies": {
-    "astro-broken-links-checker": "file:..",
+    "astro-seo-checker": "file:..",
     "execa": "^9.4.0",
     "astro": "^5.1.9"
   }

@@ -1,7 +1,7 @@
 {
-  "name": "astro-broken-links-checker",
-  "version": "1.0.3",
-  "description": "An Astro integration to check for broken links and SEO issues in your website during build time.",
+  "name": "astro-seo-checker",
+  "version": "1.0.0",
+  "description": "An Astro integration to check for SEO issues and broken links in your website during build time.",
   "main": "index.js",
   "type": "module",
   "exports": {
@@ -13,9 +13,11 @@
     "broken-links",
     "link-checker",
     "seo",
-    "seo-checker"
+    "seo-checker",
+    "seo-analyzer",
+    "accessibility"
   ],
-  "author": "Lilith River",
+  "author": "Fabian Genell, based on work by Lilith River",
   "license": "Apache License 2.0",
   "dependencies": {
     "fast-glob": "^3.3.2",
