@@ -1,0 +1,170 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Performance Issues</title>
+  <meta name="description" content="This page contains various performance issues to test Phase 4">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Render-blocking stylesheet -->
+  <link rel="stylesheet" href="/styles.css">
+  
+  <!-- Render-blocking script -->
+  <script src="/blocking-script.js"></script>
+  
+  <!-- Non-blocking scripts (should not be flagged) -->
+  <script src="/non-blocking-script.js" async></script>
+  <script src="/another-script.js" defer></script>
+  <script type="module" src="/module-script.js"></script>
+  
+  <!-- Large inline style -->
+  <style>
+    /* This is a deliberately large inline style that should be flagged */
+    body { 
+      font-family: Arial, sans-serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    /* Many more unnecessary rules to make this large */
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 0;
+    }
+    
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    h3 { font-size: 1.75rem; }
+    h4 { font-size: 1.5rem; }
+    h5 { font-size: 1.25rem; }
+    h6 { font-size: 1rem; }
+    
+    p {
+      margin-bottom: 1.5rem;
+    }
+    
+    a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* Many more selectors to make the file large */
+    .btn {
+      display: inline-block;
+      background-color: #0066cc;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .btn:hover {
+      background-color: #0052a3;
+    }
+    
+    .btn-secondary {
+      background-color: #666;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Performance Issues Test Page</h1>
+  
+  <!-- Images without dimensions -->
+  <div>
+    <h2>Images without dimensions</h2>
+    <img src="/large-image1.jpg">
+    <img src="/large-image2.jpg" width="800">
+    <img src="/large-image3.jpg" height="600">
+    <img src="/correctly-sized.jpg" width="800" height="600">
+  </div>
+  
+  <!-- Large inline script -->
+  <script>
+    // This is a deliberately large inline script that should be flagged
+    document.addEventListener('DOMContentLoaded', function() {
+      // A bunch of unnecessary code to make this script large
+      function createElements() {
+        const container = document.createElement('div');
+        container.className = 'dynamic-container';
+        
+        for (let i = 0; i < 10; i++) {
+          const item = document.createElement('div');
+          item.className = 'item';
+          item.textContent = 'Item ' + (i + 1);
+          container.appendChild(item);
+        }
+        
+        document.body.appendChild(container);
+      }
+      
+      function setupEventListeners() {
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+          button.addEventListener('click', function(event) {
+            console.log('Button clicked:', event.target.textContent);
+          });
+        });
+      }
+      
+      function calculateSomething() {
+        let result = 0;
+        for (let i = 0; i < 1000; i++) {
+          result += i * (i + 1);
+        }
+        return result;
+      }
+      
+      function doMoreStuff() {
+        const value = calculateSomething();
+        console.log('Calculated value:', value);
+        
+        const now = new Date();
+        console.log('Current time:', now.toLocaleTimeString());
+        
+        // More unnecessary code
+        const items = ['apple', 'banana', 'orange', 'grape', 'kiwi'];
+        const mappedItems = items.map(item => item.toUpperCase());
+        const filteredItems = mappedItems.filter(item => item.length > 5);
+        console.log('Processed items:', filteredItems);
+      }
+      
+      // Call our functions
+      createElements();
+      setupEventListeners();
+      doMoreStuff();
+    });
+  </script>
+  
+  <a href="/">Home</a>
+</body>
+</html>

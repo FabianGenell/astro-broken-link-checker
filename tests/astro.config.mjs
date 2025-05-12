@@ -13,8 +13,13 @@ export default defineConfig({
       1: true, // Enable Phase 1 (Foundation + Privacy)
       2: true, // Enable Phase 2 (Metadata & Semantic Structure)
       3: true, // Enable Phase 3 (Accessibility & UX Flags)
+      4: true, // Enable Phase 4 (Performance & Technical SEO)
     },
     checkCanonical: true, // Enable canonical link checking
-    ignoreEmptyAlt: true, // Don't flag empty alt attributes (they might be intentional for decorative images)
+    ignoreEmptyAlt: true, // Don't flag empty alt attributes (they might be intentional for decorative images),
+    checkResourceSizes: true, // Enable resource size checking in Phase 4
+    inlineScriptThreshold: 2, // KB threshold for inline scripts
+    inlineStyleThreshold: 1, // KB threshold for inline styles
+    imageSizeThreshold: 200 // KB threshold for image size warnings
   })],
 });

@@ -2,9 +2,10 @@
 import { checkPhase1 } from './phase-1.js';
 import { checkPhase2 } from './phase-2.js';
 import { checkPhase3 } from './phase-3.js';
+import { checkPhase4 } from './phase-4.js';
 
 // Re-export phase modules
-export { checkPhase1, checkPhase2, checkPhase3 };
+export { checkPhase1, checkPhase2, checkPhase3, checkPhase4 };
 
 // Export map of all phases for configuration
 export const phases = {
@@ -27,10 +28,10 @@ export const phases = {
     enabled: false // Default disabled, can be enabled in config
   },
   4: {
-    name: 'Performance Warnings',
-    handler: null, // Not implemented yet
-    description: 'Identifies performance issues with images and fonts',
-    enabled: false
+    name: 'Performance & Technical SEO',
+    handler: checkPhase4,
+    description: 'Checks for performance issues like large images, render-blocking resources and mobile viewport',
+    enabled: false // Default disabled, can be enabled in config
   },
   5: {
     name: 'Crawlability & Linking',
