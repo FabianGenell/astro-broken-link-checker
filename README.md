@@ -92,8 +92,9 @@ export default defineConfig({
   // ... other configurations ...
   integrations: [
     astroSeoChecker({
-      // Basic options
-      logFilePath: 'site-report.log',     // Path for the consolidated report
+      // Report options
+      reportFilePath: 'site-report.log',  // Path for the report (extension determines format)
+      reportFormat: 'markdown',          // Optional format override (markdown, json, csv)
       checkExternalLinks: false,          // Check external links (slower)
 
       // SEO checker options
@@ -133,24 +134,74 @@ export default defineConfig({
 
 ## Reports
 
-The integration produces a consolidated report file:
+The integration produces a report file in your chosen format. The format is determined by:
+1. The `reportFormat` option if specified (overrides any file extension)
+2. The file extension of `reportFilePath` (`.log`/`.md` for Markdown, `.json` for JSON, `.csv` for CSV)
+3. Defaults to Markdown format if neither of the above is specified
 
-**site-report.log**: A comprehensive Markdown-formatted report that includes:
+### Available Report Formats
+
+#### Markdown Format (.log or .md)
+A human-readable report with clear sections and formatting:
 
 - **Summary**: Total counts of broken links and SEO issues by category
 - **Broken Links**: All broken links found during the build process, grouped by URL
-- **SEO Issues**: All detected SEO issues organized by category, such as:
-  - Privacy issues (exposed emails)
-  - Metadata issues (missing/empty titles, descriptions)
-  - Semantic structure problems (h1 tags, language attributes)
-  - Duplicate content warnings (identical titles or descriptions)
-  - Canonical link validation results
-  - Accessibility issues (missing alt tags, unlabeled elements, generic link text)
-  - Performance problems (layout shifts, render-blocking resources)
-  - Technical SEO issues (mobile viewport configuration)
-  - Crawlability warnings (noindex/nofollow tags, linking structure)
-  - Missing critical files (robots.txt, sitemap.xml)
-  - AI content detection (potentially AI-generated text with confidence scores)
+- **SEO Issues**: All detected SEO issues organized by category
+
+#### JSON Format (.json)
+A structured JSON report ideal for programmatic processing:
+
+```json
+{
+  "timestamp": "2025-05-12T09:04:37.225Z",
+  "scanDuration": 0.23,
+  "summary": {
+    "brokenLinkCount": 25,
+    "seoIssueCount": 3,
+    "categories": {
+      "content: potential ai text": 1,
+      "privacy: exposed email": 2
+    }
+  },
+  "brokenLinks": [
+    {
+      "url": "/missing-page",
+      "pages": ["/page1", "/page2"]
+    }
+  ],
+  "seoIssues": {
+    "privacy: exposed email": [
+      {
+        "description": "Raw email exposed: test@example.com",
+        "pages": ["/page1"]
+      }
+    ]
+  }
+}
+```
+
+#### CSV Format (.csv)
+A tabular format ideal for importing into spreadsheets or data analysis tools:
+
+```
+issue_type,category,issue,page,timestamp
+"broken_link","broken_link","/missing-page","/page1","2025-05-12T09:04:37.225Z"
+"broken_link","broken_link","/missing-page","/page2","2025-05-12T09:04:37.225Z"
+"seo_issue","privacy: exposed email","Raw email exposed: test@example.com","/page1","2025-05-12T09:04:37.225Z"
+```
+
+The report includes information about:
+- Privacy issues (exposed emails)
+- Metadata issues (missing/empty titles, descriptions)
+- Semantic structure problems (h1 tags, language attributes)
+- Duplicate content warnings
+- Canonical link validation results
+- Accessibility issues (missing alt tags, unlabeled elements)
+- Performance problems (layout shifts, render-blocking resources)
+- Technical SEO issues (mobile viewport configuration)
+- Crawlability warnings (noindex/nofollow tags, linking structure)
+- Missing critical files (robots.txt, sitemap.xml)
+- AI content detection (potentially AI-generated text with confidence scores)
 
 ## Development and Testing
 

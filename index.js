@@ -3,12 +3,13 @@ import path, { join } from 'path';
 import fs from 'fs';
 import { normalizeHtmlFilePath } from './src/phases/utils.js';
 import { runPhases, phases } from './src/phases/index.js';
-import { CATEGORY_FORMATTING } from './src/phases/types.js';
+import { formatReport, OUTPUT_FORMATS } from './src/formatters/index.js';
 import fastGlob from 'fast-glob';
 
 export default function astroBrokenLinksChecker(options = {}) {
   // Default options
-  const logFilePath = options.logFilePath || 'site-report.log';
+  const reportFilePath = options.reportFilePath || options.logFilePath || 'site-report.log';
+  const reportFormat = options.reportFormat; // Auto-detected from file extension if not specified
   const brokenLinksMap = new Map(); // Map of brokenLink -> Set of documents
   const checkedLinks = new Map();
   const seoIssuesMap = new Map(); // Map of category -> Map of issue -> Set of documents
@@ -42,8 +43,8 @@ export default function astroBrokenLinksChecker(options = {}) {
         // Start time
         const startTime = Date.now();
         
-        // Resolve log file path to absolute path in the output directory
-        const absoluteLogFilePath = join(distPath, logFilePath);
+        // Resolve report file path to absolute path in the output directory
+        const absoluteReportFilePath = join(distPath, reportFilePath);
         
         const checkHtmlPromises = htmlFiles.map(async (htmlFile) => {
           const absoluteHtmlFilePath = join(distPath, htmlFile);
@@ -73,99 +74,65 @@ export default function astroBrokenLinksChecker(options = {}) {
         
         await Promise.all(checkHtmlPromises);
         
-        // Generate and log combined report
+        // Generate and write report
         generateReport(
-          brokenLinksMap, 
-          seoIssuesMap, 
-          absoluteLogFilePath, 
-          logger, 
-          startTime
+          brokenLinksMap,
+          seoIssuesMap,
+          {
+            filePath: absoluteReportFilePath,
+            format: reportFormat,
+            startTime: startTime
+          },
+          logger
         );
       },
     },
   };
 }
 
-// Function to generate a comprehensive report
-function generateReport(brokenLinksMap, seoIssuesMap, logFilePath, logger, startTime) {
+/**
+ * Generate report and write to filesystem
+ *
+ * @param {Map} brokenLinksMap - Map of broken links to affected pages
+ * @param {Map} seoIssuesMap - Map of SEO issues by category
+ * @param {Object} options - Report options
+ * @param {string} options.filePath - Path to write the report
+ * @param {string} [options.format] - Optional format override
+ * @param {number} options.startTime - Scan start time timestamp
+ * @param {Object} logger - Astro logger instance
+ */
+function generateReport(brokenLinksMap, seoIssuesMap, options, logger) {
   // Calculate elapsed time
   const endTime = Date.now();
-  const elapsedTime = (endTime - startTime) / 1000; // Convert to seconds
-  
-  // Format timestamp for the report
-  const timestamp = new Date().toISOString();
-  
-  // Start building report data
-  let reportData = `# Site Report - ${timestamp}\n\n`;
-  reportData += `Scan completed in ${elapsedTime.toFixed(2)} seconds\n\n`;
-  
-  // Count totals for summary
+  const elapsedTime = (endTime - options.startTime) / 1000;
+
+  // Format report using the appropriate formatter
+  const reportData = formatReport(brokenLinksMap, seoIssuesMap, options);
+
+  // Count totals for console summary
   const brokenLinkCount = brokenLinksMap.size;
   let totalSeoIssues = 0;
   const issueCategories = [];
-  
+
   for (const [category, issuesMap] of seoIssuesMap.entries()) {
     totalSeoIssues += issuesMap.size;
     issueCategories.push(`${issuesMap.size} ${category}`);
   }
 
-  // Add summary section
-  reportData += "## Summary\n\n";
-  reportData += `- Broken Links: ${brokenLinkCount}\n`;
-  reportData += `- SEO Issues: ${totalSeoIssues}\n`;
-  
-  if (issueCategories.length > 0) {
-    reportData += "  - " + issueCategories.join("\n  - ") + "\n";
-  }
-  reportData += "\n";
-  
-  // Add broken links section if any exist
-  if (brokenLinkCount > 0) {
-    reportData += "## 🔗 Broken Links\n\n";
-    
-    for (const [brokenLink, documentsSet] of brokenLinksMap.entries()) {
-      const documents = Array.from(documentsSet);
-      reportData += `### ${brokenLink}\n\n`;
-      reportData += "Found in:\n";
-      
-      for (const doc of documents) {
-        reportData += `- ${doc}\n`;
-      }
-      reportData += "\n";
-    }
-  }
-  
-  // Add SEO issues section if any exist
-  if (totalSeoIssues > 0) {
-    reportData += "## 🔍 SEO Issues\n\n";
-    
-    for (const [category, issuesMap] of seoIssuesMap.entries()) {
-      reportData += `### ${formatCategoryName(category)}\n\n`;
-      
-      for (const [issue, documentsSet] of issuesMap.entries()) {
-        const documents = Array.from(documentsSet);
-        reportData += `#### ${issue}\n\n`;
-        reportData += "Found in:\n";
-        
-        for (const doc of documents) {
-          reportData += `- ${doc}\n`;
-        }
-        reportData += "\n";
-      }
-    }
-  }
-  
-  // Write the report to file
-  if (logFilePath) {
+  // Write the report to file if file path is provided
+  if (options.filePath) {
     // Ensure directory exists
-    const logDir = path.dirname(logFilePath);
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
+    const reportDir = path.dirname(options.filePath);
+    if (!fs.existsSync(reportDir)) {
+      fs.mkdirSync(reportDir, { recursive: true });
     }
-    
-    fs.writeFileSync(logFilePath, reportData, 'utf8');
-    
-    // Log to console with improved formatting
+
+    fs.writeFileSync(options.filePath, reportData, 'utf8');
+
+    // Log summary to console
+    const format = options.format || path.extname(options.filePath).substring(1) || 'log';
+    const formatName = format.toUpperCase();
+
     const summaryForConsole = `
 🔍 Site Report Summary:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -174,26 +141,14 @@ ${brokenLinkCount > 0 ? `⚠️ Found ${brokenLinkCount} broken links` : '✅ No
 ${totalSeoIssues > 0 ? `⚠️ Found ${totalSeoIssues} SEO issues` : '✅ No SEO issues detected'}
 ${issueCategories.length > 0 ? '  - ' + issueCategories.join('\n  - ') : ''}
 
-📄 Full report written to: ${logFilePath}
+📄 Full ${formatName} report written to: ${options.filePath}
 `;
-    
+
     logger.info(summaryForConsole);
   } else {
+    // If no file path, just log the report directly
     logger.info(reportData);
   }
 }
 
 
-// Helper to format category names for display
-function formatCategoryName(category) {
-  // Return mapped category name if it exists
-  if (CATEGORY_FORMATTING[category]) {
-    return CATEGORY_FORMATTING[category];
-  }
-
-  // Default formatting for unmapped categories
-  return category
-    .split(':')
-    .map(part => part.trim().charAt(0).toUpperCase() + part.trim().slice(1))
-    .join(': ');
-}
